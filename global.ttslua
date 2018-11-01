@@ -1,0 +1,41 @@
+debug = false
+debugReady = false
+
+--Global variables
+players = {}
+possibleRoles = {}
+Game = {
+    state = "JOIN", --JOIN, DOPPELGANGER, NIGHT, DAY
+    paused = false,
+    roles = {},
+    players = {},
+    centerRoles = {},
+    centerRoleCards = {},
+    votes = {},
+    dead = {},
+    winningTeams = {},
+    clock = {}
+}
+allColors = {"White", "Brown", "Red", "Orange", "Yellow", "Green", "Teal", "Blue", "Purple", "Pink"}
+cardLocation = {White={position={x=23.67, y=0.5, z=-28.32}, rotation={x=0, y=0, z=0}},
+                Brown={position={x=0.00, y=0.5, z=-28.32}, rotation={x=0, y=0, z=0}},
+                Red={position={x=-23.67, y=0.5, z=-28.32}, rotation={x=0, y=0, z=0}},
+                Orange={position={x=-46.04, y=0.5, z=-11.73}, rotation={x=0, y=90, z=0}},
+                Yellow={position={x=-46.04, y=0.5, z=11.73}, rotation={x=0, y=90, z=0}},
+                Green={position={x=-23.67, y=0.5, z=28.61}, rotation={x=0, y=180, z=0}},
+                Teal={position={x=0, y=0.5, z=28.61}, rotation={x=0, y=180, z=0}},
+                Blue={position={x=23.67, y=0.5, z=28.61}, rotation={x=0, y=180, z=0}},
+                Purple={position={x=46.1, y=0.5, z=11.73}, rotation={x=0, y=270, z=0}},
+                Pink={position={x=46.1, y=0.5, z=-11.73}, rotation={x=0, y=270, z=0}}}
+
+lineEndLocations = {White={position={x=23.67, y=0.5, z=-18.32}, rotation={x=0, y=0, z=0}},
+                Brown={position={x=0.00, y=0.5, z=-18.32}, rotation={x=0, y=0, z=0}},
+                Red={position={x=-23.67, y=0.5, z=-18.32}, rotation={x=0, y=0, z=0}},
+                Orange={position={x=-36.04, y=0.5, z=-11.73}, rotation={x=0, y=90, z=0}},
+                Yellow={position={x=-36.04, y=0.5, z=11.73}, rotation={x=0, y=90, z=0}},
+                Green={position={x=-23.67, y=0.5, z=18.61}, rotation={x=0, y=180, z=0}},
+                Teal={position={x=0, y=0.5, z=18.61}, rotation={x=0, y=180, z=0}},
+                Blue={position={x=23.67, y=0.5, z=18.61}, rotation={x=0, y=180, z=0}},
+                Purple={position={x=36.1, y=0.5, z=11.73}, rotation={x=0, y=270, z=0}},
+                Pink={position={x=36.1, y=0.5, z=-11.73}, rotation={x=0, y=270, z=0}}}
+roleOrder = {"Werewolf", "Minion", "Mason", "Seer", "Robber", "Troublemaker", "Drunk", "Insomniac", "Villager", "Hunter", "Tanner", "Doppelganger"}

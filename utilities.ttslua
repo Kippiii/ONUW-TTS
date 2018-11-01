@@ -1,0 +1,110 @@
+function canStart()
+    local roles = 0
+    for _, role in ipairs(possibleRoles) do
+        if role.selected then
+            roles = roles + 1
+        end
+    end
+    return roles == getPlayerCount() + 3 and (getPlayerCount() >= 3 or debug)
+end
+
+function getRoleNumber(role)
+    for i, roleName in ipairs(roleOrder) do
+        if role.name == roleName then
+            return i
+        end
+    end
+    return 999
+end
+
+function getDisconnect()
+    for color, player in pairs(Game.players) do
+        player.disconnect = true
+    end
+
+    for _, player in ipairs(Player.getPlayers()) do
+        local color = player.color
+        if Game.players[color] ~= nil then
+            Game.players[color].disconnect = false
+        end
+    end
+
+    for color, player in pairs(Game.players) do
+        if player.disconnect == true then
+            return true
+        end
+    end
+    return false
+end
+
+--Adds all players to an array
+function addAllPlayers(table)
+    for color in pairs(table) do
+        table[color] = nil
+    end
+
+    for i, player in pairs(Player.getPlayers()) do
+        if player.color ~= "Grey" and player.color ~= "Black" then
+            table[player.color] = MyPlayer(player.color)
+        end
+    end
+end
+
+--Replacement in UI
+function replaceInUI(original, replacement)
+    local ui = self.UI.getXml()
+    local begin, terminate = ui:find(original)
+    if begin ~= nil then
+        self.UI.setXml(ui:sub(1, begin - 1) .. replacement .. ui:sub(terminate + 1))
+    end
+end
+
+function arrLength(arr)
+    local length = 0
+    for i, v in ipairs(arr) do
+        length = length + 1
+    end
+    return length
+end
+
+function getPlayerCount()
+    local playerCount = 0
+    for i, player in ipairs(Player.getPlayers()) do
+        if player.color ~= "Grey" and player.color ~= "Black" then
+            playerCount = playerCount + 1
+        end
+    end
+    return playerCount
+end
+
+function table.clone(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[table.clone(orig_key)] = table.clone(orig_value)
+        end
+        setmetatable(copy, table.clone(getmetatable(orig)))
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
+
+function removeFromVisibility(id, color)
+    local visibility = self.UI.getAttribute(id, "visibility")
+    local index,_ = string.find(visibility, color)
+    if color ~= nil then
+        if index == nil then
+        elseif index == 1 then
+            visibility = string.sub(visibility, visibility:len() + 1)
+        else
+            visibility = string.sub(visibility, 1, index - 2) .. string.sub(visibility, index + visibility:len())
+        end
+    end
+    if visibility == "" then
+        visibility = " "
+    end
+    return visibility
+end

@@ -1,0 +1,16 @@
+function onPlayerChangeColor(player_color)
+    addAllPlayers(players)
+    if Game.state ~= "JOIN" then
+        if getDisconnect() then
+            Game.paused = true
+            if Game.state == "DAY" then
+                --Game.clock.Clock.paused = true
+            end
+        else
+            Game.paused = false
+            if Game.state == "DAY" then
+                --Game.clock.Clock.paused = true
+            end
+        end
+    end
+end

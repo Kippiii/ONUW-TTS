@@ -1,0 +1,431 @@
+function onLoad()
+    math.randomseed(os.time())
+    addAllPlayers(players)
+    generateRoleList()
+end
+
+--Generates the role list
+function generateRoleList()
+    table.insert(possibleRoles, Doppelganger())
+    table.insert(possibleRoles, Werewolf())
+    table.insert(possibleRoles, Werewolf())
+    table.insert(possibleRoles, Minion())
+    table.insert(possibleRoles, Mason())
+    table.insert(possibleRoles, Mason())
+    table.insert(possibleRoles, Seer())
+    table.insert(possibleRoles, Robber())
+    table.insert(possibleRoles, Troublemaker())
+    table.insert(possibleRoles, Drunk())
+    table.insert(possibleRoles, Insomniac())
+    table.insert(possibleRoles, Villager())
+    table.insert(possibleRoles, Villager())
+    table.insert(possibleRoles, Villager())
+    table.insert(possibleRoles, Hunter())
+    table.insert(possibleRoles, Tanner())
+
+    local roleSelectorString = ""
+    for index, role in ipairs(possibleRoles) do
+        roleSelectorString = roleSelectorString .. "<Panel ><Image id='" .. role.name .. index .. "' class='role' image='" .. role.name .. "' color='#808080' onclick='roleSelect(" .. index .. ")' /></Panel>"
+    end
+    replaceInUI("<Text>RoleSelector!</Text>", roleSelectorString)
+end
+
+--Generates XML elements of every type for all players
+function generateAllXml()
+    local xmlToAdd = ""
+
+    --Display roles
+    for color in pairs(Game.players) do
+        local player = Game.players[color]
+        xmlToAdd = xmlToAdd .. "<VerticalLayout id='" .. color .. "Role' class='playerRole' visibility='" .. color .. "'>"
+            xmlToAdd = xmlToAdd .. "<Panel width='300' height='100'><ToggleButton id='ready" .. color .. "' color='Red' textAlignment='MiddleCenter' width='300' height='100' onValueChanged='ready'>Ready</ToggleButton></Panel>"
+            xmlToAdd = xmlToAdd .. "<Panel height='418.5' width='300'><Image id='" .. color .. "card' class='playerCard' image='" .. player.role.name .. " Card' height='418.5' width='300' /></Panel>"
+            xmlToAdd = xmlToAdd .. "<Text id='" .. color .. "Description' color='white' fontSize='25'>" .. player.role.description .. "</Text>"
+        xmlToAdd = xmlToAdd .. "</VerticalLayout>"
+    end
+
+    --Generate player Xmls
+    for color, player in pairs(Game.players) do
+        xmlToAdd = xmlToAdd .. player.generateXml()
+    end
+
+    --Generate role Xmls
+    for color, player in pairs(Game.players) do
+        xmlToAdd = xmlToAdd .. player.role.generateXml()
+    end
+
+    --Generate doppelganger timer
+    xmlToAdd = xmlToAdd .. "\n<Panel id='doppelTimer' width='250' height='150' rectAlignment='UpperLeft' offsetXY='75 -10' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' '>" ..
+        "<Text id='doppelTime' fontSize='100'>20</Text>" ..
+    "</Panel>"
+
+    --Generate night timer
+    xmlToAdd = xmlToAdd .. "\n<Panel id='nightTimer' width='250' height='150' rectAlignment='UpperLeft' offsetXY='75 -10' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' '>" ..
+        "<Text id='nightTime' fontSize='100'>30</Text>" ..
+    "</Panel>"
+
+    --Generate voting
+    xmlToAdd = xmlToAdd .. "<Panel id='voteSwitch' width='8%' height='75' rectAlignment='UpperRight' offsetXY='-250 -25' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' '>" ..
+        "<Button fontSize='25' onClick='voteToggle'>Player Voter</Button>" ..
+    "</Panel>"
+    for color, player in pairs(Game.players) do
+        xmlToAdd = xmlToAdd .. "<GridLayout id='" .. color .. "Voting' width='800' height='900' cellSize='400 150' visibility=' '>" ..
+            "<Text alignment='MiddleLeft' color='Blue' fontStyle='Bold' fontSize='30'>Choose a player to vote out:</Text>"
+        for color2, player2 in pairs(Game.players) do
+            if color2 ~= color then
+                xmlToAdd = xmlToAdd .. "<Panel color='" .. color2 .. "' onClick='vote(" .. color2 .. ")'><Text id='" .. color .. "Vote" .. color2 .. "' color='Black' fontSize='25'>" .. player2.player.steam_name .. "</Text></Panel>"
+            end
+        end
+        xmlToAdd = xmlToAdd .. "</GridLayout>"
+    end
+
+    --Generate claims
+    xmlToAdd = xmlToAdd .. "<GridLayout id='claimSelector' width='800' height='800' cellSize='200 200' visibility=' '>"
+        for i, role in ipairs(Game.roles) do
+            xmlToAdd = xmlToAdd .. "<Panel><Image id='Claim" .. role.name .. i .. "' class='role' image='" .. role.name .. "' onclick='claimSelect(" .. i .. ")' /></Panel>"
+        end
+    xmlToAdd = xmlToAdd .. "</GridLayout>"
+
+    self.UI.setXml(self.UI.getXml() .. xmlToAdd)
+end
+
+--Starts the game
+function start(player)
+    --Deciding whether the game can start
+    if not player.promoted and not player.host then return end
+    if not canStart() then
+        broadcastToColor("Could not start game. Ensure that there are at least 3 players and the number of roles equals the number of players plus three", player.color, {100, 0, 0})
+        return
+    end
+
+    --Hiding UI elements
+    self.UI.setAttribute("startButton", "visibility", " ")
+    self.UI.setAttribute("roleSelectorSwitch", "visibility", " ")
+    self.UI.setAttribute("roleSelector", "visibility", " ")
+
+    --Generating the role list
+    local roleList = "[0000ff]Role List:\n\n"
+    for _, role in ipairs(possibleRoles) do
+        if role.selected then
+            table.insert(Game.roles, role)
+
+            local color = "D3D3D3"
+            if role.team == "Village" then
+                color = "008000"
+            elseif role.team == "Werewolves" then
+                color = "A52A2A"
+            end
+            roleList = roleList .. "[" .. color .. "]" .. role.name .. "\n"
+        end
+    end
+    Notes.setNotes(roleList)
+
+    --Adding all players to the game
+    for _, player in pairs(Player.getPlayers()) do
+        if players[player.color] ~= nil then
+            Game.players[player.color] = players[player.color]
+        end
+    end
+
+    --Giving each player a role
+    local tempRoles = {}
+    for _, role in ipairs(Game.roles) do
+        table.insert(tempRoles, role)
+    end
+    for i in pairs(Game.players) do
+        local player = Game.players[i]
+        local  random = math.random(arrLength(tempRoles))
+        player.setRole(tempRoles[random])
+        table.remove(tempRoles, random)
+    end
+    for i = 1, 3 do
+        local random = math.random(arrLength(tempRoles))
+        table.insert(Game.centerRoles, tempRoles[random])
+        table.remove(tempRoles,random)
+    end
+
+    --Spawning all player cards
+    for color, player in pairs(Game.players) do
+        player.generateCard()
+    end
+
+    --Spawning all center cards
+    for i = 1, 3 do
+        local delta = 5
+        local object = spawnObject({type="Checker_white", position={x=(-1 * delta) + ((i - 1) * delta), y=0.5, z=0}, rotation={x=0, y=0, z=0}, sound=false})
+        object.setInvisibleTo(Player.getColors())
+
+        xmlToAdd = ""
+        for _, color in pairs(Player.getColors()) do
+            xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
+        end
+
+        function setXml()
+            object.UI.setXml(xmlToAdd)
+            object.setLock(true)
+        end
+        Wait.time(setXml, 0.5)
+        table.insert(Game.centerRoleCards, object)
+    end
+
+    Wait.time(generateAllXml, 0.25)
+end
+
+--Runs everytime someone click ready
+function ready(player, status)
+    if Game.state == "JOIN" then
+        if not debugReady then
+            --Fixes TTS garbage
+            if status == "True" then
+                status = true
+            else
+                status = false
+            end
+            --Stores player ready status
+            Game.players[player.color].ready = status
+            --Updates color of button
+            local colorButton = "Red"
+            if status then
+                colorButton = "Green"
+            end
+            self.UI.setAttribute("ready" .. player.color, "color", colorButton)
+            Game.players[player.color].cardUI.UI.setAttribute(player.color .. "ReadyImage", "image", colorButton .. " Light")
+            --Checks if everyone is ready
+            for color in pairs(Game.players) do
+                if not Game.players[color].ready then
+                    return
+                end
+            end
+        end
+
+        --Checks for Doppelganger
+        local isDoppelganger = false
+        for i, role in ipairs(Game.roles) do
+            if role.name == "Doppelganger" then
+                isDoppelganger = true
+                break
+            end
+        end
+        if not isDoppelganger then
+            startNightPhase()
+        else
+            broadcastToAll("The Doppelganger Phase has begun!", "Blue")
+            local doppelganger = nil
+            for color, player in pairs(Game.players) do
+                if player.role.name == "Doppelganger" then
+                    doppelganger = player
+                    break
+                end
+            end
+            Game.state = "DOPPELGANGER"
+            if doppelganger ~= nil then
+                self.UI.setAttribute(doppelganger.color .. "Role", "visibility", " ")
+                doppelganger.role.beginDoppel()
+            end
+            self.UI.setAttribute("doppelTimer", "visibility", "")
+            timer("doppelTime", doppelEnd)
+        end
+        nightBlind()
+    end
+end
+
+--Runs at the end of the Doppelganger phase
+function doppelEnd()
+    for color, player in pairs(Game.players) do
+        if player.role.name == "Doppelganger" then
+            player.role.endDoppel()
+            break
+        end
+    end
+    startNightPhase()
+end
+
+--Runs at the beginning of the night phase
+function startNightPhase()
+    broadcastToAll("The night phase has begun!", "Grey")
+    Game.state = "NIGHT"
+    for color in pairs(Game.players) do
+        self.UI.setAttribute(color .. "Role", "visibility", " ")
+        Game.players[color].role.startNightAbility()
+    end
+    self.UI.setAttribute("nightTimer", "visibility", "")
+    timer("nightTime", endNight)
+end
+
+--Runs at the end of the night phase
+function endNight()
+    broadcastToAll("The night phase has ended!", "Grey")
+
+    --Sorting so roles go in proper order
+    local playerList = {}
+    for color, player in pairs(Game.players) do
+        table.insert(playerList, player.role)
+    end
+    for i = 1, arrLength(playerList) do
+        local lowestIndex = i
+        for j = i + 1, arrLength(playerList) do
+            if getRoleNumber(playerList[j]) < getRoleNumber(playerList[lowestIndex]) then
+                lowestIndex = j
+            end
+        end
+        local temp = playerList[lowestIndex]
+        playerList[lowestIndex] = playerList[i]
+        playerList[i] = temp
+    end
+
+    for i, role in ipairs(playerList) do
+        role.endNight()
+    end
+
+    Game.state = "DAY"
+    for color, player in pairs(Game.players) do
+        player.player.blindfolded = false
+    end
+
+    self.UI.setAttribute("claimSwitch", "visibility", "")
+
+    self.UI.setAttribute("voteSwitch", "visibility", "")
+
+    Game.clock = getObjectFromGUID("cabd89")
+    Game.clock.call("startTimer")
+
+    for color, player in pairs(Game.players) do
+        player.cardUI.UI.setAttribute(color .. "ReadyImage", 'image', "Red Light")
+    end
+end
+
+--Runs when a vote is ready to be called
+function callVote()
+    self.UI.setAttribute("voteSwitch", "visibility", " ")
+    self.UI.setAttribute("claimSelector", "visibility", " ")
+    self.UI.setAttribute("claimSwitch", "visibility", " ")
+    local everyoneVoted = true
+    for color, player in pairs(Game.players) do
+        if player.vote == "" then
+            everyoneVoted = false
+        end
+    end
+
+    if not everyoneVoted then
+        for color, player in pairs(Game.players) do
+            self.UI.setAttribute(color .. "Voting", "visibility", color)
+        end
+        return
+    end
+
+    for color, player in pairs(Game.players) do
+        Game.votes[color] = 0
+    end
+    for color, player in pairs(Game.players) do
+        Game.votes[player.vote] = Game.votes[player.vote] + 1
+    end
+    local highestVotes = {}
+    local highestVote = -1
+    for color, votes in pairs(Game.votes) do
+        if votes > highestVote then
+            highestVotes = {}
+            highestVote = votes
+            table.insert(highestVotes, color)
+        elseif votes == highestVote then
+            table.insert(highestVotes, color)
+        end
+    end
+    Game.dead = highestVotes
+    for color, player in pairs(Game.players) do
+        player.role.voteAbility()
+    end
+
+    local playerCount = 0
+    for _,_ in pairs(Game.players) do
+        playerCount = playerCount + 1
+    end
+    if arrLength(Game.dead) == playerCount then
+        Game.dead = {}
+    end
+
+    endGame()
+end
+
+--Runs at the end of the game
+function endGame()
+    local deadCount = arrLength(Game.dead)
+    if deadCount == 0 then
+        broadcastToAll("No one has died!", "Green")
+    elseif deadCount == 1 then
+        broadcastToAll(Game.dead[1] .. " has been killed!", "Green")
+    elseif deadCount == 2 then
+        broadcastToAll(Game.dead[1] .. " and " .. Game.dead[2] .. " have been killed!", "Green")
+    else
+        local deathMsg = ""
+        for i = 1, deadCount - 1 do
+            deathMsg = deathMsg .. Game.dead[i] .. ", "
+        end
+        deathMsg = deathMsg .. " and " .. Game.dead[deadCount] .. " have been killed!"
+        broadcastToAll(deathMsg, "Green")
+    end
+
+    Game.clock.Clock.pauseStart()
+
+    for color, player in pairs(Game.players) do
+        self.UI.setAttribute(color .. "Voting", "visibility", " ")
+    end
+
+    --Declaring the winning teams
+    local werewolfInPlay = false
+    for color, player in pairs(Game.players) do
+        if player.endRole.werewolf then
+            werewolfInPlay = true
+            break
+        end
+    end
+    local deadTanner = false
+    for i, color in ipairs(Game.dead) do
+        if Game.players[color].endRole.name == "Tanner" or Game.players[color].endRole.team == "doppleTanner" then
+            table.insert(Game.winningTeams, Game.players[color].endRole.team)
+            deadTanner = true
+        end
+    end
+    if werewolfInPlay then
+        local deadWerewolf = false
+        for i, color in ipairs(Game.dead) do
+            if Game.players[color].endRole.werewolf then
+                deadWerewolf = true
+                break
+            end
+        end
+        if deadWerewolf then
+            table.insert(Game.winningTeams, "Village")
+        elseif not deadTanner then
+            table.insert(Game.winningTeams, "Werewolves")
+        end
+    else
+        if deadCount == 0 then
+            table.insert(Game.winningTeams, "Village")
+            table.insert(Game.winningTeams, "Werewolves")
+        end
+    end
+
+    --Raise winning cards and draws votes
+    local vectors = {}
+    for color, player in pairs(Game.players) do
+        local object = player.cardUI
+        if player.hasWon() then
+            object.UI.setXml("<Panel width='300' height='400' position='0 1000 -500' rotation='45 0 180' scale='3 3' visibility='' id='card'><Image image='" .. player.endRole.name .. " Card' /></Panel>")
+        else
+            object.UI.setXml("<Panel width='300' height='400' position='0 1000 -50' visibility='' id='card'><Image image='" .. player.endRole.name .. " Card' /></Panel>")
+        end
+
+        local vote = player.vote
+        local vector = {
+            points = { {player.player.getHandTransform().position.x, 1, player.player.getHandTransform().position.z}, {lineEndLocations[vote].position.x, 1.5, lineEndLocations[vote].position.z} },
+            color = player.color,
+            thickness = 0.5
+        }
+        table.insert(vectors, vector)
+    end
+    Global.setVectorLines(vectors)
+
+    for i, object in ipairs(Game.centerRoleCards) do
+        object.UI.setXml("<Panel width='300' height='400' position='0 0 -50' visibility='' id='back'><Image image='" .. Game.centerRoles[i].name .. " Card' /></Panel>")
+    end
+end
