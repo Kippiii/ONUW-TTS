@@ -38,4 +38,4 @@ lineEndLocations = {White={position={x=23.67, y=0.5, z=-18.32}, rotation={x=0, y
                 Blue={position={x=23.67, y=0.5, z=18.61}, rotation={x=0, y=180, z=0}},
                 Purple={position={x=36.1, y=0.5, z=11.73}, rotation={x=0, y=270, z=0}},
                 Pink={position={x=36.1, y=0.5, z=-11.73}, rotation={x=0, y=270, z=0}}}
-roleOrder = {"Werewolf", "Minion", "Mason", "Seer", "Robber", "Troublemaker", "Drunk", "Insomniac", "Villager", "Hunter", "Tanner", "Doppelganger"}
+roleOrder = {"Werewolf", "Minion", "Mason", "Seer", "Apprentice Seer", "Paranormal Investigator", "Robber", "Witch", "Troublemaker", "Village Idiot", "Drunk", "Insomniac", "Revealer", "Villager", "Hunter", "Tanner", "Dream Wolf", "Bodyguard", "Doppelganger"}
