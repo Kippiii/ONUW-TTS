@@ -6,6 +6,7 @@ end
 
 --Generates the role list
 function generateRoleList()
+	table.insert(possibleRoles, Sentinel())
     table.insert(possibleRoles, Doppelganger())
     table.insert(possibleRoles, Werewolf())
     table.insert(possibleRoles, Werewolf())
@@ -32,7 +33,7 @@ function generateRoleList()
 
     local roleSelectorString = ""
     for index, role in ipairs(possibleRoles) do
-        roleSelectorString = roleSelectorString .. "<Panel ><Image id='" .. role.name .. index .. "' class='role' image='" .. role.name .. "' color='#808080' onclick='roleSelect(" .. index .. ")' /></Panel>"
+        roleSelectorString = roleSelectorString .. "<Panel><Image id='" .. role.name .. index .. "' class='role' image='" .. role.name .. "' color='#808080' onclick='roleSelect(" .. index .. ")' /></Panel>"
     end
     replaceInUI("<Text>RoleSelector!</Text>", roleSelectorString)
 end
@@ -61,9 +62,9 @@ function generateAllXml()
         xmlToAdd = xmlToAdd .. player.role.generateXml()
     end
 
-    --Generate doppelganger timer
-    xmlToAdd = xmlToAdd .. "\n<Panel id='doppelTimer' width='250' height='150' rectAlignment='UpperLeft' offsetXY='75 -10' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' '>" ..
-        "<Text id='doppelTime' fontSize='100'>20</Text>" ..
+    --Generate prenight timer
+    xmlToAdd = xmlToAdd .. "\n<Panel id='prenightTimer' width='250' height='150' rectAlignment='UpperLeft' offsetXY='75 -10' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' '>" ..
+        "<Text id='prenightTime' fontSize='100'>20</Text>" ..
     "</Panel>"
 
     --Generate night timer
@@ -205,46 +206,88 @@ function ready(player, status)
             end
         end
 
-        --Checks for Doppelganger
-        local isDoppelganger = false
+        --Checks if there should be a prenight phase
+        local prenight = false
         for i, role in ipairs(Game.roles) do
-            if role.name == "Doppelganger" then
-                isDoppelganger = true
+            if role.prenight then
+                prenight = true
                 break
             end
         end
-        if not isDoppelganger then
+        if not prenight then
             startNightPhase()
         else
-            broadcastToAll("The Doppelganger Phase has begun!", "Blue")
-            local doppelganger = nil
-            for color, player in pairs(Game.players) do
-                if player.role.name == "Doppelganger" then
-                    doppelganger = player
-                    break
-                end
-            end
-            Game.state = "DOPPELGANGER"
-            if doppelganger ~= nil then
-                self.UI.setAttribute(doppelganger.color .. "Role", "visibility", " ")
-                doppelganger.role.beginDoppel()
-            end
-            self.UI.setAttribute("doppelTimer", "visibility", "")
-            timer("doppelTime", doppelEnd)
+            startPrenight()
         end
         nightBlind()
     end
 end
 
---Runs at the end of the Doppelganger phase
-function doppelEnd()
-    for color, player in pairs(Game.players) do
-        if player.role.name == "Doppelganger" then
-            player.role.endDoppel()
-            break
+--Runs at the beginning of Prenight
+function startPrenight()
+	broadcastToAll("The Prenight Phase has begun!", "Blue")
+	local prenights = {}
+	for color, player in pairs(Game.players) do
+		if player.role.prenight then
+			table.insert(player)
+		end
+	end
+	Game.state = "PRENIGHT"
+	
+	--Generates the prenight roles list
+	local prenightRoles = {}
+    for i, role in ipairs(Game.roles) do
+		if role.prenight then
+			table.insert(prenightRoles, role)
+		end
+	end
+	for i = 1, arrLength(prenightRoles) do
+        local lowestIndex = i
+        for j = i + 1, arrLength(prenightRoles) do
+            if getRoleNumber(prenightRoles[j]) < getRoleNumber(prenightRoles[lowestIndex]) then
+                lowestIndex = j
+            end
         end
+        local temp = prenightRoles[lowestIndex]
+        prenightRoles[lowestIndex] = prenightRoles[i]
+        prenightRoles[i] = temp
     end
-    startNightPhase()
+	Game.prenightRoles = prenightRoles
+	
+	--Begins the first person's prenight
+	for color, player in pairs(Game.players) do
+		if player.role.name == Game.prenightRoles[1].name then
+			player.role.beginPrenight()
+			break
+		end
+	end
+	
+	self.UI.setAttribute("prenightTimer", "visibility", "")
+	self.UI.setValue("prenightTime", Game.prenightRoles[1].prenightTime)
+	timer("prenightTime", prenightEnd)
+end
+
+--Runs after every person is done with their prenight action
+function continuePrenight()
+	for color, player in pairs(Game.players) do
+		if player.role.name == Game.prenightRoles[1].name then
+			player.role.endPrenight()
+			break
+		end
+	end
+	table.remove(Game.prenightRoles, 1)
+	if arrLength(Game.prenightRoles) < 1 then
+		startNightPhase()
+		return
+	end
+	for color, player in pairs(Game.players) do
+		if player.role.name == Game.prenightRoles[1].name then
+			player.role.beginPrenight()
+			break
+		end
+	end
+	self.UI.setValue("prenightTime", Game.prenightRoles[1].prenightTime)
+	timer("prenightTime", prenightEnd)
 end
 
 --Runs at the beginning of the night phase

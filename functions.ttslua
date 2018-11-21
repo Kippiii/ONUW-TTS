@@ -91,7 +91,7 @@ function nightBlind()
         player.player.blindfolded = true
     end
     function recursiveBlind()
-        if Game.state ~= "NIGHT" and Game.state ~= "DOPPELGANGER" then return end
+        if Game.state ~= "NIGHT" and Game.state ~= "PRENIGHT" then return end
         for color, player in pairs(Game.players) do
             if player ~= nil and not player.player.blindfolded then
                 player.player.blindfolded = true
