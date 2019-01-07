@@ -114,6 +114,10 @@ function start(player)
     self.UI.setAttribute("roleSelectorSwitch", "visibility", " ")
     self.UI.setAttribute("roleSelector", "visibility", " ")
 
+	if debug then
+		self.UI.setAttribute('debuggerSwitch', "visibility", "Host")
+	end
+
     --Generating the role list
     local roleList = "[0000ff]Role List:\n\n"
     for _, role in ipairs(possibleRoles) do
@@ -142,14 +146,6 @@ function start(player)
     local tempRoles = {}
     for _, role in ipairs(Game.roles) do
         table.insert(tempRoles, role)
-		
-		--Adding support for Alpha Wolf
-		if role.name == "Alpha Wolf" then
-			for color, player in pairs(Game.players) do
-				self.UI.setAttribute(color .. "CenterCardsAW", "visibility", color)
-				self.UI.setAttribute(color .. "CenterCards", "height", "800")
-			end
-		end
     end
     for i in pairs(Game.players) do
         local player = Game.players[i]
@@ -186,23 +182,33 @@ function start(player)
         Wait.time(setXml, 0.5)
         table.insert(Game.centerRoleCards, object)
     end
-	
-	--Adding alpha wolf card
-	local object = spawnObject({type="Checker_white", position={x=0, y=0.5, z=5}, rotation={x=0, y=90, z=0}, sound=false})
-	object.setInvisibleTo(Player.getColors())
-	local xmlToAdd = ""
-	for _, color in pairs(Player.getColors()) do
-		xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
-	end
-	
-	function setXml()
-		object.UI.setXml(xmlToAdd)
-		object.setLock(true)
-	end
-	Wait.time(setXml, 0.5)
-	table.insert(Game.centerRoleCards, object)
-	
-	table.insert(Game.centerRoles, HiddenWolf())
+
+    --Adding support for Alpha Wolf
+    local fourthCenter = false
+    for _, role in ipairs(Game.roles) do
+        if role.name == "Alpha Wolf" then
+            fourthCenter = true
+            break
+        end
+    end
+    if fourthCenter then
+        --Adding alpha wolf card
+        local object = spawnObject({type="Checker_white", position={x=0, y=0.5, z=5}, rotation={x=0, y=90, z=0}, sound=false})
+        object.setInvisibleTo(Player.getColors())
+        local xmlToAdd = ""
+        for _, color in pairs(Player.getColors()) do
+            xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
+        end
+
+        function setXml()
+            object.UI.setXml(xmlToAdd)
+            object.setLock(true)
+        end
+        Wait.time(setXml, 0.5)
+        table.insert(Game.centerRoleCards, object)
+
+        Game.centerRoles[4] = HiddenWolf()
+    end
 
     Wait.time(generateAllXml, 0.25)
 end
@@ -231,6 +237,21 @@ function ready(player, status)
                 if not Game.players[color].ready then
                     return
                 end
+            end
+        end
+
+        --More support for Alpha Wolf
+        local fourthCenter = false
+        for _, role in ipairs(Game.roles) do
+            if role.name == "Alpha Wolf" then
+                fourthCenter = true
+                break
+            end
+        end
+        if fourthCenter then
+            for color, player in pairs(Game.players) do
+                self.UI.setAttribute(color .. "CenterCardsAW", "visibility", color)
+                self.UI.setAttribute(color .. "CenterCards", "height", "800")
             end
         end
 
@@ -313,6 +334,7 @@ function continuePrenight()
 	end
 	for color, player in pairs(Game.players) do
 		if player.role.name == Game.prenightRoles[1].name then
+            self.UI.setAttribute(color .. "Role", "visibility", " ")
 			player.role.beginPrenight()
 			break
 		end
@@ -373,6 +395,18 @@ function endNight()
     for color, player in pairs(Game.players) do
         player.cardUI.UI.setAttribute(color .. "ReadyImage", 'image', "Red Light")
     end
+
+	--Support for force vote debug
+	if debug then
+		function addForceVote()
+			xmlToAdd = ""
+			for _, player in pairs(Game.players) do
+				xmlToAdd = xmlToAdd .. "<Panel color='" .. player.color .. "' onClick='forceVoteSelect(" .. player.color .. ")'><Text color='Black' fontSize='25'>" .. player.player.steam_name .. "</Text></Panel>"
+			end
+			replaceInUI("<Text>ForceVote!</Text>", xmlToAdd)
+		end
+		Wait.time(addForceVote, 0.25)
+	end
 end
 
 --Runs when a vote is ready to be called

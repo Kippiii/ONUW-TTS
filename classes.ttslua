@@ -59,15 +59,16 @@ function MyPlayer(color)
             "<Text id='" .. this.color .. "PlayerSelectorInstructions' alignment='MiddleLeft' color='Blue' fontStyle='Bold' fontSize='30'>Default Text</Text>"
         for color, player in pairs(Game.players) do
             if color ~= this.color then
-                xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "PlayerSelector" .. color .. "Panel' color='" .. player.color .. "' onClick='playerNightClick(" .. player.color .. ")'><Image id='" .. this.color .. "PlayerSelector" .. color .. "Sentinel' height='50' width='50' alignment='LowerRight' image='Sentinel Token' visibility=' ' /><Text id='" .. this.color .. "PlayerSelector" .. color .. "' color='Black' fontSize='25'>" .. player.player.steam_name .. "</Text></Panel>"
-            end
-			xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "PlayerSelector" .. this.color .. "Panel' color='" .. this.color .. "' onClick='playerNightClick(" .. this.color .. ")' visibility=' '><Image id='" .. this.color .. "PlayerSelector" .. this.color .. "Sentinel' height='50' width='50' alignment='LowerRight' image='Sentinel Token' visibility=' ' /><Text id='" .. this.color .. "PlayerSelector" .. this.color .. "' color='Black' fontSize='25'>" .. this.player.steam_name .. "</Text></Panel>"
+                xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "PlayerSelector" .. color .. "Panel' color='" .. player.color .. "' onClick='playerNightClick(" .. player.color .. ")'><Image id='" .. this.color .. "PlayerSelector" .. color .. "Sentinel' height='50' width='50' rectAlignment='LowerRight' image='Sentinel Token' visibility=' ' /><Text id='" .. this.color .. "PlayerSelector" .. color .. "' color='Black' fontSize='25'>" .. player.player.steam_name .. "</Text></Panel>"
+            else
+				xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "PlayerSelector" .. this.color .. "Panel' color='" .. this.color .. "' onClick='playerNightClick(" .. this.color .. ")' visibility=' '><Image id='" .. this.color .. "PlayerSelector" .. this.color .. "Sentinel' height='50' width='50' rectAlignment='LowerRight' image='Sentinel Token' visibility=' ' /><Text id='" .. this.color .. "PlayerSelector" .. this.color .. "' color='Black' fontSize='25'>" .. this.player.steam_name .. "</Text></Panel>"
+			end
         end
         xmlToAdd = xmlToAdd .. "</GridLayout>"
 
-        xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "CenterCards' width='900' height='500' columnWidths='300' rectAlignment='MiddleCenter' visibility=' '>" ..
+        xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "CenterCards' cellBackgroundColor='Clear' width='900' height='500' columnWidths='300' rectAlignment='MiddleCenter' visibility=' '>" ..
             "<Row preferredHeight='100'><Cell columnSpan='3'><Panel><Text id='" .. this.color .. "CenterCardsInstructions' alignement='MiddleLeft' color='Black' fontStyle='Bold' fontSize='30'>Default text</Text></Panel></Cell></Row>" ..
-			"<Row id='" .. this.color .."CenterCardsAW' preferredHeight='300' visibility=' '><Cell columnSpan='3'><Panel width='400'><Image id='" .. this.color .. "CenterCardsMiddleCard4' image='Back' onClick='playerNightClick(4)' /></Panel></Cell></Row>" ..
+			"<Row id='" .. this.color .."CenterCardsAW' preferredHeight='300' visibility=' '><Cell columnSpan='3'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard4' height='400' width='300' rotation='0 0 90' image='Back' onClick='playerNightClick(4)' /></Panel></Cell></Row>" ..
             "<Row preferredHeight='400'>" ..
                 "<Cell height='400' width='300'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard1' image='Back' onClick='playerNightClick(1)' /></Panel></Cell>" ..
                 "<Cell height='400' width='300'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard2' image='Back' onClick='playerNightClick(2)' /></Panel></Cell>" ..
@@ -85,11 +86,11 @@ function MyPlayer(color)
 			xmlToAdd = xmlToAdd .. "<Panel><Panel id='" .. this.color .. "PlayerListExtra' width='400' height='150' color='White' visibility=' '><Text id='" .. this.color .. "PlayerListExtraText' color='Black' fontSize='25'></Text></Panel></Panel>"
         xmlToAdd = xmlToAdd .. "</GridLayout>"
 
-        xmlToAdd = xmlToAdd .. "<VerticalLayout id='" .. this.color .. "PlayerShow' childAlignment='UpperLeft' width='500' height='800' spacing='50' offsetXY='0 100' visibility=' '>" ..
-            "<Panel><Text id='" .. this.color .. "PlayerShowInstructions' alignment='MiddleLeft' color='Blue' fontStyle='Bold' fontSize='30'>Default Text</Text></Panel>" ..
-            "<Panel><Image id='" .. this.color .. "PlayerShowCard' image='Back' width='300' height='400' /></Panel>" ..
-			"<Panel id='" .. this.color .. "PlayerShowButton' color='Green' width='300' height='100' onClick='playerNightClick(continue)' visibility=' '><Text id='" .. this.color .. "PlayerShowButtonText' color='Black' fontSize='25'>Continue</Text></Panel>" ..
-        "</VerticalLayout>"
+        xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "PlayerShow' columnWidths='500' cellBackgroundColor='Clear' width='500' height='700' visibility=' '>" ..
+            "<Row preferredHeight='200'><Cell><Panel><Text id='" .. this.color .. "PlayerShowInstructions' alignment='MiddleLeft' color='Blue' fontStyle='Bold' fontSize='30'>Default Text</Text></Panel></Cell></Row>" ..
+            "<Row preferredHeight='400'><Cell><Panel><Image id='" .. this.color .. "PlayerShowCard' image='Back' width='300' height='400' /></Panel></Cell></Row>" ..
+			"<Row preferredHeight='100'><Cell><Panel id='" .. this.color .. "PlayerShowButton' color='Green' width='300' height='100' onClick='playerNightClick(continue)' visibility=' '><Text id='" .. this.color .. "PlayerShowButtonText' color='Black' fontSize='25'>Continue</Text></Panel></Cell></Row>" ..
+        "</TableLayout>"
 
         return xmlToAdd
     end
@@ -99,6 +100,7 @@ end
 --Class for all roles in the game
 function Role()
     local this = {}
+    this.functionName = ""
     this.name = ""
     this.team = ""
     this.werewolf = false
@@ -132,6 +134,7 @@ end
 function Sentinel()
 	local this = Role()
 	this.name = "Sentinel"
+    this.functionName = this.name
 	this.team = "Village"
 	this.description = "Choose one other player to have their card be unable to be looked at or changed."
 	this.earlyDoppel = true
@@ -182,6 +185,7 @@ end
 function Doppelganger()
     local this = Role()
     this.name = "Doppelganger"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "The Doppelganger wakes up before everyone else and view another player's role. The Doppelganger is now that role. She is not only on the same team as the role in which she views, but she also gets to do the night action of the card in which she saw."
 	this.prenight = true
@@ -196,7 +200,7 @@ function Doppelganger()
         if value == this.color then return end
         if this.doppelState == "SELECTING" then
             self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-            this.doppelRole = _G[Game.players[value].role.name]()
+            this.doppelRole = _G[Game.players[value].role.functionName]()
             this.doppelRole.color = this.color
             this.werewolf = this.doppelRole.werewolf
             this.team = this.doppelRole.team
@@ -206,29 +210,34 @@ function Doppelganger()
             end
             Game.players[this.color].endRole = table.clone(this)
 
-            self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-            self.UI.setAttribute(this.color .. "Role", "visibility", this.color)
+            self.UI.setAttribute(this.color .. "PlayerShow", "visibility", this.color)
             local buttonAttributes = {}
             if this.doppelRole.earlyDoppel then
                 buttonAttributes = {
                     color="Green",
                     onValueChanged="playerNightClick('Start')",
-                    text="Do Ability"
+                    text="Do Ability",
+					visibility=this.color
                 }
             else
                 buttonAttributes = {
                     color="Grey",
                     onValueChanged=" ",
-                    text="Do Ability"
+                    text="Do Ability",
+					visibility=this.color
                 }
             end
-            self.UI.setAttributes("ready" .. this.color, buttonAttributes)
-            self.UI.setAttribute(this.color .. "Card", "image", this.doppelRole.name .. " Card")
-            self.UI.setValue(this.color .. "Description", this.doppelRole.description)
+            self.UI.setAttributes(this.color .. "PlayerShowButton", buttonAttributes)
+            self.UI.setAttribute(this.color .. "PlayerShowCard", "image", this.doppelRole.name .. " Card")
+            self.UI.setValue(this.color .. "PlayerShowInstructions", this.doppelRole.description)
             this.doppelState = "VIEWING"
         elseif this.doppelState == "VIEWING" then
-            self.UI.setAttribute(this.color .. "Role", "visibility", " ")
-            this.doppelRole.startNightAbility()
+            self.UI.setAttribute(this.color .. "PlayerShow", "visibility", " ")
+            if this.doppelRole.prenight then
+                this.doppelRole.beginPrenight()
+            else
+                this.doppelRole.startNightAbility()
+            end
             this.doppelState = "ABILITY"
         elseif this.doppelState == "ABILITY" then
             this.doppelRole.nightClick(value)
@@ -238,9 +247,13 @@ function Doppelganger()
         if this.doppelState == "SELECTING" then
             self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
         elseif this.doppelState == "VIEWING" then
-            self.UI.setAttribute(this.color .. "Role", "visibility", " ")
+            self.UI.setAttribute(this.color .. "PlayerShow", "visibility", " ")
         elseif this.doppelState == "ABILITY" then
-            this.doppelRole.endNight()
+            if this.doppelRole.prenight then
+                this.doppelRole.endPrenight()
+            else
+                this.doppelRole.endNight()
+            end
         end
     end
     function this.startNightAbility()
@@ -266,6 +279,7 @@ end
 function Werewolf()
     local this = Role()
     this.name = "Werewolf"
+    this.functionName = this.name
     this.team = "Werewolves"
     this.werewolf = true
 	this.hidden = false;
@@ -322,10 +336,12 @@ end
 function AlphaWolf()
 	local this = Role()
 	this.name = "Alpha Wolf"
+    this.functionName = "AlphaWolf"
 	this.team = "Werewolves"
 	this.werewolf = true
 	this.hidden = false;
 	this.description = "This role causes an additional center card to be added that is always a normal werewolf. The Alpha Wolf knows the other werewolves, and it wakes up afterwards and excahnges the center werewolf card with another player's card."
+    this.earlyDoppel = true
 	this.prenight = true
 	this.prenightTime = 15
 	this.willSeeMiddle = false
@@ -404,22 +420,24 @@ function AlphaWolf()
 		self.UI.setAttribute(this.color .. "PlayerList", "visibility", " ")
 		self.UI.setAttribute(this.color .. "PlayerShow", "visibility", " ")
 		self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
+        self.UI.setAttribute(this.color .. "PlayerListExtra", "visibility", " ")
 
         if this.selection == "" then
             local tempPlayers = {}
-            for color, player in pairs(Game.Players) do
+            for color, player in pairs(Game.players) do
                 if color ~= this.color and not player.role.werewolf then
                     table.insert(tempPlayers, color)
                 end
             end
-            local r = Math.random(1, arrLength(tempPlayers))
+            local r = math.random(arrLength(tempPlayers))
             this.selection = tempPlayers[r]
 
-            broadcastToColor("You failed to select a player to give the center card, so " .. this.witchee .. " was randomly selected!", this.color, "Red")
+            broadcastToColor("You failed to select a player to give the center card, so " .. this.selection .. " was randomly selected!", this.color, "Red")
         end
 
+        Game.players[this.selection].revealRole(this.color, HiddenWolf())
 		local temp = table.clone(Game.players[this.selection].endRole)
-		Game.players[this.witchee].endRole = table.clone(Game.centerRoles[4])
+		Game.players[this.selection].endRole = table.clone(Game.centerRoles[4])
 		Game.centerRoles[4] = temp
 	end
 	function this.startNightAbility()
@@ -460,22 +478,26 @@ end
 function HiddenWolf()
 	local this = Role()
     this.name = "Werewolf"
+    this.functionName = "HiddenWolf"
     this.team = "Werewolves"
     this.werewolf = true
 	this.hidden = true;
+    return this
 end
 
 --Class for mystic wolf role
 function MysticWolf()
 	local this = Role();
 	this.name = "Mystic Wolf"
+    this.functionName = "MysticWolf"
 	this.team = "Werewolves"
 	this.werewolf = true
 	this.hidden = false;
 	this.description = "The Mystic Wolf wakes with the other Werewolves. Afterwards, the Mystic Wolf may look at one other player's card."
-	this.sawMiddle = false
+    this.earlyDoppel = true
+	this.middle = -1
 	this.wolfState = "WOLF" --WOLF, MYSTIC
-	this.mysticFinished = false
+    this.selection = ""
 	function this.startNightAbility()
         --Gets all werewolves
         local werewolves = {}
@@ -515,20 +537,21 @@ function MysticWolf()
 	function this.nightClick(value)
 		if this.wolfState == "WOLF" then
 			if value == "Switch" or value == "continue" then
-				if this.sawMiddle then
-					if this.mysticFinished then
-						self.UI.setValue(this.color .. "PlayerShowInstructions", "You looked at " .. value .. "'s role, and it is as follows:")
-						self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.players[value].role.name .. " Card")
+				if this.middle ~= -1 then
+					if this.selection ~= "" then
+						self.UI.setValue(this.color .. "PlayerShowInstructions", "You looked at " .. this.selection .. "'s role, and it is as follows:")
+						self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.players[this.selection].role.name .. " Card")
 					end
 					self.UI.setAttribute(this.color .. "PlayerShow", "visibility", " ")
 				else
 					self.UI.setAttribute(this.color .. "PlayerList", "visibility", " ")
 				end
 
-				if this.mysticFinished then
+				if this.selection ~= "" then
 					self.UI.setAttribute(this.color .. "PlayerShow", "visibility", this.color)
 				else
 					self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", this.color)
+					self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Please select a player to view the card of:")
 				end
 				this.wolfState = "MYSTIC"
 			else
@@ -538,15 +561,16 @@ function MysticWolf()
 				self.UI.setValue(this.color .. "PlayerShowInstructions", "Here is the center role that you just viewed:")
 				self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.centerRoles[value].name .. " Card")
 				revealCenterCard(this.color, value)
-				this.sawMiddle = true
+				this.middle = value
 			end
 		else
 			if value == "Switch" or value == "continue" then
 				self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-				if this.sawMiddle then
-					if this.mysticFinished then
+                self.UI.setAttribute(this.color .. "PlayerShow", "visibility", " ")
+				if this.middle ~= -1 then
+					if this.selection ~= "" then
 						self.UI.setValue(this.color .. "PlayerShowInstructions", "Here is the center role that you just viewed:")
-						self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.centerRoles[value].name .. " Card")
+						self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.centerRoles[this.middle].name .. " Card")
 					end
 					self.UI.setAttribute(this.color .. "PlayerShow", "visibility", this.color)
 				else
@@ -559,7 +583,7 @@ function MysticWolf()
 				self.UI.setValue(this.color .. "PlayerShowInstructions", "You looked at " .. value .. "'s role, and it is as follows:")
 				self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.players[value].role.name .. " Card")
 				Game.players[value].revealRole(this.color, Game.players[value].role)
-				this.mysticFinished = true
+                this.selection = value
 			end
 		end
 	end
@@ -576,6 +600,7 @@ end
 function Minion()
     local this = Role()
     this.name = "Minion"
+    this.functionName = this.name
     this.team = "Werewolves"
     this.description = "The Minion is on the Werewolf team and gets to view the identities of the Werewolves. The Werewolves do not know the identities of the Minion. If the Minion is voted out at the end of the game, it does not count as a Werewolf getting voted out. If no players are Werewolves, the Minion wins as long as one other player (not the Minion) dies."
     function this.generateXml()
@@ -617,6 +642,7 @@ end
 function Mason()
     local this = Role()
     this.name = "Mason"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "The Masons wake up at night and view who the other Mason is, giving the Masons someone to trust."
     this.mason = true
@@ -651,6 +677,7 @@ end
 function Seer()
     local this = Role()
     this.name = "Seer"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "At night, the Seer may look either at one other player's card or at two of the center cards, but does not move them."
     this.earlyDoppel = true
@@ -713,6 +740,7 @@ end
 function ApprenticeSeer()
 	local this = Role()
 	this.name = "Apprentice Seer"
+    this.functionName = "ApprenticeSeer"
 	this.team = "Village"
 	this.description = "At night, the apprentice seer may view one of the center roles."
 	this.earlyDoppel = true
@@ -739,6 +767,7 @@ end
 function PI()
 	local this = Role()
 	this.name = "Paranormal Investigator"
+    this.functionName = "PI"
 	this.team = "Village"
 	this.description = "At night, the Paranormal Investigator may look at up to two other peoples cards. If a werewolf or tanner is viewed, they must stop looking and become a werewolf or tanner, respectively."
 	this.earlyDoppel = true
@@ -766,6 +795,7 @@ function PI()
 			else
 				if this.numberLooked < 2 then
 					self.UI.setAttribute(this.color .. "PlayerShowButton", "visibility", this.color)
+					self.UI.setAttribute(this.color .. "PlayerSelector" .. value .. "Panel", "visibility", " ")
 				end
 			end
 		else
@@ -788,6 +818,7 @@ end
 function Robber()
     local this = Role()
     this.name = "Robber"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "At night, the Robber may choose to rob a card from another player, giving that player their Robber card. The Robber views his new card. The player who receives the Robber card is on the village team. The Robber is on the team of the card he takes, however, he does not do the action of his new role at night."
     this.earlyDoppel = true
@@ -824,6 +855,7 @@ end
 function Witch()
 	local this = Role()
 	this.name  = "Witch"
+    this.functionName = this.name
 	this.team = "Village"
 	this.description = "At night, the Witch may view a card from the center and then must give it to any player of their choice."
 	this.earlyDoppel = true
@@ -833,7 +865,7 @@ function Witch()
 	function this.startNightAbility()
 		self.UI.setAttribute(this.color .. "CenterCards", "visibility", this.color)
 		self.UI.setValue(this.color .. "CenterCardsInstructions", "Choose another a center role to view:")
-		self.UI.setAttribute(this.color .. "PlayerSelector" .. this.color, "visibility", this.color)
+		self.UI.setAttribute(this.color .. "PlayerSelector" .. this.color .. "Panel", "visibility", this.color)
 	end
 	function this.nightClick(value)
 		if this.nightPhase == "Center" then
@@ -870,12 +902,10 @@ function Witch()
 		if this.centerCard ~= -1 then
 			if this.witchee == "" then
 				local tempPlayers = {}
-				for color in pairs(Game.Players) do
-					if color ~= this.color then
-						table.insert(tempPlayers, color)
-					end
+				for color in pairs(Game.players) do
+					table.insert(tempPlayers, color)
 				end
-				local r = Math.random(1, arrLength(tempPlayers))
+				local r = math.random(1, arrLength(tempPlayers))
 				this.witchee = tempPlayers[r]
 
 				broadcastToColor("You failed to select a player to give the center card, so " .. this.witchee .. " was randomly selected!", this.color, "Red")
@@ -893,6 +923,7 @@ end
 function Troublemaker()
     local this = Role()
     this.name = "Troublemaker"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "At night, the Troublemaker may switch the cards of two other players without looking at those cards. The players who recieve a different card are now the role (and team) of their new card, even though they don't know what role that is until the end of the game. The Troublemaker is on the village team."
     this.earlyDoppel = true
@@ -934,6 +965,7 @@ end
 function VillageIdiot()
 	local this = Role()
 	this.name = "Village Idiot"
+    this.functionName = "VillageIdiot"
 	this.team = "Village"
 	this.description = "At night, choose to either rotate all other player's cards to the left or to the right."
 	this.earlyDoppel = true
@@ -944,8 +976,8 @@ function VillageIdiot()
         xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "VillageIdiot' width='800' height='400' cellSize='800 200' visibility=' '>" ..
             "<Text color='Blue' fontStyle='Bold' fontSize='40'>Choose a direction to rotate every other players card in:</Text>" ..
             "<GridLayout cellSize='400 200'>" ..
-                "<Panel id='" .. this.color .. "VillageIdiotLeft' color='Blue' onClick='playerNightClick(Left)'><Text color='Black' fontSize='30'>Left</Text></Panel>" ..
-                "<Panel id='" .. this.color .. "VillageIdiotRight' color='Red' onClick='playerNightClick(Right)'><Text color='Black' fontSize='30'>Right</Text></Panel>" ..
+                "<Panel id='" .. this.color .. "VillageIdiotLeft' color='Blue' onClick='playerNightClick(Left)'><Text id='" .. this.color .. "VillageIdiotLeftText' color='Black' fontSize='30'>Left</Text></Panel>" ..
+                "<Panel id='" .. this.color .. "VillageIdiotRight' color='Red' onClick='playerNightClick(Right)'><Text id='" .. this.color .. "VillageIdiotRightText' color='Black' fontSize='30'>Right</Text></Panel>" ..
             "</GridLayout>" ..
         "</GridLayout>"
 
@@ -956,14 +988,14 @@ function VillageIdiot()
 	end
 	function this.nightClick(value)
 		if this.direction == "" then
-			self.UI.setAttribute(this.color .. "VillageIdiot" .. value, "fontStyle", "Bold")
+			self.UI.setAttribute(this.color .. "VillageIdiot" .. value .. "Text", "fontStyle", "Bold")
 			this.direction = value
 		elseif value ~= this.direction then
-			self.UI.setAttribute(this.color .. "VillageIdiot" .. value, "fontStyle", "Bold")
-			self.UI.setAttribute(this.color .. "VillageIdiot" .. this.direction, "fontStyle", "None")
+			self.UI.setAttribute(this.color .. "VillageIdiot" .. value .. "Text", "fontStyle", "Bold")
+			self.UI.setAttribute(this.color .. "VillageIdiot" .. this.direction .. "Text", "fontStyle", "None")
 			this.direction = value
 		else
-			self.UI.setAttribute(this.color .. "VillageIdiot" .. value, "fontStyle", "None")
+			self.UI.setAttribute(this.color .. "VillageIdiot" .. value .. "Text", "fontStyle", "None")
 			this.direction = ""
 		end
 	end
@@ -1003,6 +1035,7 @@ end
 function Drunk()
     local this = Role()
     this.name = "Drunk"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "The Drunk is so drunk that he doesn't remember his role. When it comes time to wake up at night, he must exchange his Drunk card for any card in the center, but he does not look at it. The Drunk is now the new role in front of him (even though he doesn't know what that new role is) and is on that team."
     this.earlyDoppel = true
@@ -1029,7 +1062,7 @@ function Drunk()
         self.UI.setAttribute(this.color .. "CenterCards", "visibility", " ")
 		if this.protected then return end
         if this.selection == 0 then
-			this.selection = Math.random(1, 3)
+			this.selection = math.random(1, 3)
 			broadcastToColor("You failed to select a center card to swap with, so a center card was chosen for you!", this.color, "Red")
 		end
 
@@ -1047,6 +1080,7 @@ end
 function Insomniac()
     local this = Role()
     this.name = "Insomniac"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "The Insomniac wakes up and looks at her card (to see if it has changed)."
     function this.endNight()
@@ -1060,6 +1094,7 @@ end
 function Revealer()
 	local this = Role()
 	this.name = "Revealer"
+    this.functionName = this.name
 	this.team = "Village"
 	this.description = "The revealer reveals the card of one player to all other players, unless it is a werewolf or a tanner."
 	this.selection = ""
@@ -1083,11 +1118,15 @@ function Revealer()
     function this.endNight()
         self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
 
-		if this.selection ~= "" then
+		if this.selection ~= "" and not ((not Game.players[this.selection].role.werewolf and not Game.players[this.selection].role.tanner) and (Game.players[this.selection].role.name ~= "Doppelganger" and Game.players[this.selection].role.name ~= "Paranormal Investigator")) then
 			for color in pairs(Game.players) do
 				Game.players[this.selection].revealRole(color, Game.players[this.selection].endRole)
 			end
-		end
+            Game.players[this.color].player.broadcast("You have revealed " .. this.selection .. "'s role to the rest of the table!'", "Green")
+		elseif this.selection ~= "" then
+            Game.players[this.selection].revealRole(this.color, Game.players[this.selection].endRole)
+            Game.players[this.color].player.broadcast("You attempted to reveal the role of " .. this.selection .. ", but they were too evil for you to reveal them.", "Red")
+        end
     end
 	return this
 end
@@ -1096,6 +1135,7 @@ end
 function Villager()
     local this = Role()
     this.name = "Villager"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "The Villager has no special abilities, but he is definitely not a werewolf."
     return this
@@ -1105,6 +1145,7 @@ end
 function Hunter()
     local this = Role()
     this.name = "Hunter"
+    this.functionName = this.name
     this.team = "Village"
     this.description = "If the Hunter dies, the player he is pointing at dies as well (regardless of how many votes his target recieves)."
     function this.voteAbility()
@@ -1128,6 +1169,7 @@ end
 function Tanner()
     local this = Role()
     this.name = "Tanner"
+    this.functionName = this.name
     this.team = "Tanner"
 	this.tanner = true
     this.description = "The Tanner hates his job so much that he wants to die. The Tanner only wins if he dies. If the Tanner dies and no Werewolves die, the Werewolves do not win. If the Tanner dies and a Werewolf also dies, the village team wins too. The Tanner is considered a member of the village (but is not on their team), so if the Tanner dies when all werewolves are in the center, the village team loses."
@@ -1138,6 +1180,7 @@ end
 function DreamWolf()
 	local this = Role()
 	this.name = "Dream Wolf"
+    this.functionName = "DreamWolf"
 	this.team = "Werewolves"
 	this.werewolf = true
 	this.description = "The dream wolf is a werewolf that does not get to know the identity of the other werewolves."
@@ -1148,6 +1191,7 @@ end
 function BodyGuard()
 	local this = Role()
 	this.name = "Bodyguard"
+    this.functionName = this.name
 	this.team = "Village"
 	this.description = "The person who the bodyguard votes for cannot be voted out."
 	function this.voteAbility()

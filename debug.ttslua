@@ -1,0 +1,68 @@
+function openDebug()
+	if self.UI.getAttribute("debugger", "visibility") == " " then
+		self.UI.setAttribute("debugger", "visibility", "Host")
+	else
+		self.UI.setAttribute("debugger", "visibility", " ")
+	end
+end
+
+function forceReady()
+	for color, player in pairs(Game.players) do
+		player.ready = true
+	end
+end
+
+function skipTimer()
+	if Game.state == "PRENIGHT" then
+		self.UI.setValue("prenightTime", 0)
+	elseif Game.state == "NIGHT" then
+		self.UI.setValue("nightTime", 0)
+	end
+end
+
+function pauseGame()
+	Game.paused = not Game.paused
+end
+
+function updateUI()
+	visibilityTable = {}
+
+	for color in pairs(Game.players) do
+		visibilityTable[color .. "Role"] = self.UI.getAttribute(color .. "Role", "visibility")
+		visibilityTable[color .. "PlayerSelector"] = self.UI.getAttribute(color .. "PlayerSelector", "visibility")
+		visibilityTable[color .. "CenterCards"] = self.UI.getAttribute(color .. "CenterCards", "visibility")
+		visibilityTable[color .. "PlayerList"] = self.UI.getAttribute(color .. "PlayerList", "visibility")
+		visibilityTable[color .. "PlayerShow"] = self.UI.getAttribute(color .. "PlayerShow", "visibility")
+	end
+
+	for id, visibility in pairs(visibilityTable) do
+		if visibility ~= " " then
+			self.UI.setAttribute(id, "visibility", " ")
+		end
+	end
+
+	function resetVisibility()
+		for id, visibility in pairs(visibilityTable) do
+			if visibility ~= " " then
+				self.UI.setAttribute(id, "visibility", visibility)
+			end
+		end
+	end
+
+	Wait.time(resetVisibility, 0.25)
+end
+
+function forceVote()
+	if self.UI.getAttribute("forceVote", "visibility") == " " then
+		self.UI.setAttribute("forceVote", "visibility", "Host")
+	else
+		self.UI.setAttribute("forceVote", "visibility", " ")
+	end
+end
+
+function forceVoteSelect(stupidTTSGarbage, color)
+	for _, player in pairs(Game.players) do
+		player.vote = color
+	end
+	callVote()
+end
