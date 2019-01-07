@@ -113,7 +113,6 @@ function timer(id, endFunction)
             self.UI.setValue(id, time)
             Wait.time(repetition, 1)
         else
-            self.UI.setAttribute(id, "visibility", " ")
             endFunction()
         end
     end

@@ -10,6 +10,8 @@ function generateRoleList()
     table.insert(possibleRoles, Doppelganger())
     table.insert(possibleRoles, Werewolf())
     table.insert(possibleRoles, Werewolf())
+	table.insert(possibleRoles, AlphaWolf())
+	table.insert(possibleRoles, MysticWolf())
     table.insert(possibleRoles, Minion())
     table.insert(possibleRoles, Mason())
     table.insert(possibleRoles, Mason())
@@ -31,10 +33,11 @@ function generateRoleList()
 	table.insert(possibleRoles, DreamWolf())
 	table.insert(possibleRoles, BodyGuard())
 
-    local roleSelectorString = ""
+    local roleSelectorString = "<GridLayout id='roleSelectorLayout' width='800' height='" .. (math.ceil(arrLength(possibleRoles) / 4) * 200) .. "' cellSize='200 200'>"
     for index, role in ipairs(possibleRoles) do
-        roleSelectorString = roleSelectorString .. "<Panel><Image id='" .. role.name .. index .. "' class='role' image='" .. role.name .. "' color='#808080' onclick='roleSelect(" .. index .. ")' /></Panel>"
+        roleSelectorString = roleSelectorString .. "<Panel><Image rectAlignment='MiddleCenter' id='" .. role.name .. index .. "' class='role' image='" .. role.name .. "' color='#808080' onclick='roleSelect(" .. index .. ")' /></Panel>"
     end
+	roleSelectorString = roleSelectorString .. "</GridLayout>"
     replaceInUI("<Text>RoleSelector!</Text>", roleSelectorString)
 end
 
@@ -139,6 +142,14 @@ function start(player)
     local tempRoles = {}
     for _, role in ipairs(Game.roles) do
         table.insert(tempRoles, role)
+		
+		--Adding support for Alpha Wolf
+		if role.name == "Alpha Wolf" then
+			for color, player in pairs(Game.players) do
+				self.UI.setAttribute(color .. "CenterCardsAW", "visibility", color)
+				self.UI.setAttribute(color .. "CenterCards", "height", "800")
+			end
+		end
     end
     for i in pairs(Game.players) do
         local player = Game.players[i]
@@ -175,6 +186,23 @@ function start(player)
         Wait.time(setXml, 0.5)
         table.insert(Game.centerRoleCards, object)
     end
+	
+	--Adding alpha wolf card
+	local object = spawnObject({type="Checker_white", position={x=0, y=0.5, z=5}, rotation={x=0, y=90, z=0}, sound=false})
+	object.setInvisibleTo(Player.getColors())
+	local xmlToAdd = ""
+	for _, color in pairs(Player.getColors()) do
+		xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
+	end
+	
+	function setXml()
+		object.UI.setXml(xmlToAdd)
+		object.setLock(true)
+	end
+	Wait.time(setXml, 0.5)
+	table.insert(Game.centerRoleCards, object)
+	
+	table.insert(Game.centerRoles, HiddenWolf())
 
     Wait.time(generateAllXml, 0.25)
 end
@@ -233,7 +261,7 @@ function startPrenight()
 		end
 	end
 	Game.state = "PRENIGHT"
-	
+
 	--Generates the prenight roles list
 	local prenightRoles = {}
     for i, role in ipairs(Game.roles) do
@@ -253,30 +281,33 @@ function startPrenight()
         prenightRoles[i] = temp
     end
 	Game.prenightRoles = prenightRoles
-	
+
 	--Begins the first person's prenight
 	for color, player in pairs(Game.players) do
 		if player.role.name == Game.prenightRoles[1].name then
+			self.UI.setAttribute(color .. "Role", "visibility", " ")
 			player.role.beginPrenight()
 			break
 		end
 	end
-	
+
 	self.UI.setAttribute("prenightTimer", "visibility", "")
 	self.UI.setValue("prenightTime", Game.prenightRoles[1].prenightTime)
-	timer("prenightTime", prenightEnd)
+	timer("prenightTime", continuePrenight)
 end
 
 --Runs after every person is done with their prenight action
 function continuePrenight()
 	for color, player in pairs(Game.players) do
 		if player.role.name == Game.prenightRoles[1].name then
+			self.UI.setAttribute(color .. "Role", "visibility", color)
 			player.role.endPrenight()
 			break
 		end
 	end
 	table.remove(Game.prenightRoles, 1)
 	if arrLength(Game.prenightRoles) < 1 then
+        self.UI.setAttribute("prenightTimer", "visibility", " ")
 		startNightPhase()
 		return
 	end
@@ -287,7 +318,7 @@ function continuePrenight()
 		end
 	end
 	self.UI.setValue("prenightTime", Game.prenightRoles[1].prenightTime)
-	timer("prenightTime", prenightEnd)
+	timer("prenightTime", continuePrenight)
 end
 
 --Runs at the beginning of the night phase
