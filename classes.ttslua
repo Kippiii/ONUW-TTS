@@ -344,15 +344,14 @@ function AlphaWolf()
     this.earlyDoppel = true
 	this.prenight = true
 	this.prenightTime = 15
-	this.willSeeMiddle = false
 	this.sawMiddle = false
 	this.selection = ""
+    this.werewolves = {}
 	function this.beginPrenight()
 		--Gets all werewolves
-        local werewolves = {}
         for color in pairs(Game.players) do
             if Game.players[color].role.werewolf and not Game.players[color].role.hidden then
-                table.insert(werewolves, Game.players[color])
+                table.insert(this.werewolves, Game.players[color])
                 if(color ~= this.color) then
 					if Game.players[color].role.name == "Dream Wolf" then
 						Game.players[color].revealRole(this.color, DreamWolf())
@@ -363,17 +362,16 @@ function AlphaWolf()
             end
         end
 
-        if arrLength(werewolves) == 1 then
+        if arrLength(this.werewolves) == 1 then
             self.UI.setAttribute(this.color .. "CenterCards", "visibility", this.color)
             self.UI.setValue(this.color .. "CenterCardsInstructions", "You are the only Werewolf. Choose one of the center cards in order to view it.")
-			this.willSeeMiddle = true
         else
             self.UI.setAttribute(this.color .. "PlayerList", "visibility", this.color)
             self.UI.setValue(this.color .. "PlayerListInstructions", "Here is a list of the Werewolves in the game. Protect each other at all costs.")
 			self.UI.setValue(this.color .. "PlayerListExtraText", "Look at another player's card:")
 			self.UI.setAttribute(this.color .. "PlayerListExtra", "onClick", "playerNightClick(Switch)")
 			self.UI.setAttribute(this.color .. "PlayerListExtra", "visibility", this.color)
-            for i, player in ipairs(werewolves) do
+            for i, player in ipairs(this.werewolves) do
                 local attributes = {
                     color=player.color,
                     visibility=this.color
@@ -382,7 +380,8 @@ function AlphaWolf()
                 self.UI.setValue(this.color .. "PlayerList" .. i .. "Text", player.player.steam_name)
             end
         end
-		self.UI.setAttribute(this.color .. "PlayerShowButton", "visibility", this.color)
+
+        self.UI.setAttribute(this.color .. "PlayerShowButton", "visibility", this.color)
 	end
 	function this.nightClick(value)
 		if value == "Switch" or value == "continue" then
@@ -392,13 +391,14 @@ function AlphaWolf()
 				self.UI.setAttribute(this.color .. "PlayerList", "visibility", " ")
 			end
 			self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", this.color)
-            self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Please chose another player for you to turn into a werewolf:")
-		elseif this.willSeeMiddle and not this.sawMiddle then
+            self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Please choose another player for you to turn into a werewolf:")
+		elseif arrLength(this.werewolves) == 1 and not this.sawMiddle then
 			value = tonumber(value)
 			self.UI.setAttribute(this.color .. "CenterCards", "visibility", " ")
 			self.UI.setAttribute(this.color .. "PlayerShow", "visibility", this.color)
 			self.UI.setValue(this.color .. "PlayerShowInstructions", "Here is the center role that you just viewed:")
 			self.UI.setAttribute(this.color .. "PlayerShowButton", "visibility", this.color)
+            self.UI.setValue(this.color .. "PlayerShowButtonText", "Look at another player's card:")
 			self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.centerRoles[value].name .. " Card")
 			revealCenterCard(this.color, value)
 			this.sawMiddle = true
@@ -425,7 +425,7 @@ function AlphaWolf()
         if this.selection == "" then
             local tempPlayers = {}
             for color, player in pairs(Game.players) do
-                if color ~= this.color and not player.role.werewolf then
+                if color ~= this.color and (not player.role.werewolf or not player.protected) then
                     table.insert(tempPlayers, color)
                 end
             end
@@ -441,25 +441,10 @@ function AlphaWolf()
 		Game.centerRoles[4] = temp
 	end
 	function this.startNightAbility()
-        --Gets all werewolves
-        local werewolves = {}
-        for color in pairs(Game.players) do
-            if Game.players[color].role.werewolf and not Game.players[color].role.hidden then
-                table.insert(werewolves, Game.players[color])
-                if(color ~= this.color) then
-					if Game.players[color].role.name == "Dream Wolf" then
-						Game.players[color].revealRole(this.color, DreamWolf())
-					else
-						Game.players[color].revealRole(this.color, Werewolf())
-					end
-                end
-            end
-        end
-
 		self.UI.setAttribute(this.color .. "PlayerList", "visibility", this.color)
 		self.UI.setAttribute(this.color .. "PlayerListExtras", "visibility", " ")
 		self.UI.setValue(this.color .. "PlayerListInstructions", "Here is a list of the Werewolves in the game. Protect each other at all costs.")
-		for i, player in ipairs(werewolves) do
+		for i, player in ipairs(this.werewolves) do
 			local attributes = {
 				color=player.color,
 				visibility=this.color
@@ -791,7 +776,7 @@ function PI()
 				this.team = "Werewolves"
 			elseif Game.players[value].role.tanner then
 				this.tanner = true
-				this.team = "Tanner"
+				this.team = "PITanner"
 			else
 				if this.numberLooked < 2 then
 					self.UI.setAttribute(this.color .. "PlayerShowButton", "visibility", this.color)
@@ -1118,11 +1103,12 @@ function Revealer()
     function this.endNight()
         self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
 
-		if this.selection ~= "" and not ((not Game.players[this.selection].role.werewolf and not Game.players[this.selection].role.tanner) and (Game.players[this.selection].role.name ~= "Doppelganger" and Game.players[this.selection].role.name ~= "Paranormal Investigator")) then
+		if this.selection ~= "" and not ((Game.players[this.selection].endRole.werewolf or Game.players[this.selection].endRole.tanner) and not (Game.players[this.selection].endRole.name == "Doppelganger" or Game.players[this.selection].endRole.name == "Paranormal Investigator")) then
 			for color in pairs(Game.players) do
 				Game.players[this.selection].revealRole(color, Game.players[this.selection].endRole)
 			end
             Game.players[this.color].player.broadcast("You have revealed " .. this.selection .. "'s role to the rest of the table!'", "Green")
+            Game.players[this.selection].player.broadcast("Your role has been revealed to the table!", "Green")
 		elseif this.selection ~= "" then
             Game.players[this.selection].revealRole(this.color, Game.players[this.selection].endRole)
             Game.players[this.color].player.broadcast("You attempted to reveal the role of " .. this.selection .. ", but they were too evil for you to reveal them.", "Red")
@@ -1205,7 +1191,7 @@ function BodyGuard()
 		end
 		if voteDead then
 			if arrLength(Game.dead) > 1 then
-				table.splice(Game.dead, votePosition)
+				table.remove(Game.dead, votePosition)
 			else
 				local highestVotes = {}
 				local highestVote = -1

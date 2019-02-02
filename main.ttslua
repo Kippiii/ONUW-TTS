@@ -386,7 +386,7 @@ function endNight()
     end
 
     self.UI.setAttribute("claimSwitch", "visibility", "")
-
+    self.UI.setAttribute("nightTimer", "visibility", " ")
     self.UI.setAttribute("voteSwitch", "visibility", "")
 
     Game.clock = getObjectFromGUID("cabd89")
@@ -495,7 +495,7 @@ function endGame()
     end
     local deadTanner = false
     for i, color in ipairs(Game.dead) do
-        if Game.players[color].endRole.name == "Tanner" or Game.players[color].endRole.team == "doppleTanner" then
+        if Game.players[color].endRole.name == "Tanner" or Game.players[color].endRole.team == "doppleTanner" or Game.players[color].endRole.team == "PITanner" then
             table.insert(Game.winningTeams, Game.players[color].endRole.team)
             deadTanner = true
         end
