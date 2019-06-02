@@ -84,7 +84,7 @@ function generateAllXml()
             "<Text class='votingText'></Text>"
         for color2, player2 in pairs(Game.players) do
             if color2 ~= color then
-                xmlToAdd = xmlToAdd .. "<Panel color='" .. color2 .. "' onClick='vote(" .. color2 .. ")'><Text id='" .. color .. "Vote" .. color2 .. "' color='Black' fontSize='25'>" .. player2.player.steam_name .. "</Text></Panel>"
+                xmlToAdd = xmlToAdd .. "<Panel color='" .. color2 .. "' onClick='vote(" .. color2 .. ")'><Text id='" .. color .. "Vote" .. color2 .. "' color='Black' fontSize='25'>" .. Player[color2].steam_name .. "</Text></Panel>"
             end
         end
         xmlToAdd = xmlToAdd .. "</GridLayout>"
