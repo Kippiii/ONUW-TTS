@@ -28,7 +28,7 @@ end
 function MyPlayer.generateCard(this)
     local object = spawnObject({type="Checker_white", position=cardLocation[this.color].position, rotation=cardLocation[this.color].rotation, sound=false, callback_function=setupCard}) --TODO Position based on hand location
 
-    function setupCard()
+    function setupCard() --TODO Add defaults
         local xmlToAdd = ""
         for _, color in pairs(Player.getColors()) do
             if color == this.color then
@@ -58,41 +58,47 @@ end
 function MyPlayer.generateXml(this)
     local xmlToAdd = ""
 
-    xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "PlayerSelector' width='800' height='900' cellSize='400 150' visibility=' '>" ..
-        "<Text id='" .. this.color .. "PlayerSelectorInstructions' alignment='MiddleLeft' color='Blue' fontStyle='Bold' fontSize='30'>Default Text</Text>"
+    xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "PlayerSelector' class='PlayerSelector' visibility='" .. this.color .. "' active='false'>" ..
+        "<Text id='" .. this.color .. "PlayerSelectorInstructions' class='PlayerSelectorInstructions'>Default Text</Text>"
     for color, player in pairs(Game.players) do
         if color ~= this.color then
-            xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "PlayerSelector" .. color .. "Panel' color='" .. player.color .. "' onClick='playerNightClick(" .. player.color .. ")'><Image id='" .. this.color .. "PlayerSelector" .. color .. "Sentinel' height='50' width='50' rectAlignment='LowerRight' image='Sentinel Token' visibility=' ' /><Text id='" .. this.color .. "PlayerSelector" .. color .. "' color='Black' fontSize='25'>" .. player.player.steam_name .. "</Text></Panel>"
+            xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "PlayerSelector" .. color .. "Panel' color='" .. color .. "' onClick='playerNightClick(" .. color .. ")'>" ..
+                "<Image id='" .. this.color .. "PlayerSelector" .. color .. "Sentinel' class='PlayerSelectorSentinel' active='false' />" ..
+                "<Text id='" .. this.color .. "PlayerSelector" .. color .. "' class='PlayerSelectorColor'>" .. player.player.steam_name .. "</Text>" ..
+            "</Panel>"
         else
-            xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "PlayerSelector" .. this.color .. "Panel' color='" .. this.color .. "' onClick='playerNightClick(" .. this.color .. ")' visibility=' '><Image id='" .. this.color .. "PlayerSelector" .. this.color .. "Sentinel' height='50' width='50' rectAlignment='LowerRight' image='Sentinel Token' visibility=' ' /><Text id='" .. this.color .. "PlayerSelector" .. this.color .. "' color='Black' fontSize='25'>" .. this.player.steam_name .. "</Text></Panel>"
+            xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "PlayerSelector" .. this.color .. "Panel' color='" .. this.color .. "' onClick='playerNightClick(" .. this.color .. ")' active='false'>" ..
+                "<Image id='" .. this.color .. "PlayerSelector" .. this.color .. "Sentinel' class='PlayerSelectorSentinel' active='false' />" ..
+                "<Text id='" .. this.color .. "PlayerSelector" .. this.color .. "' class='PlayerSelectorColor'>" .. this.player.steam_name .. "</Text>" ..
+            "</Panel>"
         end
     end
     xmlToAdd = xmlToAdd .. "</GridLayout>"
 
-    xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "CenterCards' cellBackgroundColor='Clear' width='900' height='500' columnWidths='300' rectAlignment='MiddleCenter' visibility=' '>" ..
-        "<Row preferredHeight='100'><Cell columnSpan='3'><Panel><Text id='" .. this.color .. "CenterCardsInstructions' alignement='MiddleLeft' color='Black' fontStyle='Bold' fontSize='30'>Default text</Text></Panel></Cell></Row>" ..
-        "<Row id='" .. this.color .."CenterCardsAW' preferredHeight='300' visibility=' '><Cell columnSpan='3'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard4' height='400' width='300' rotation='0 0 90' image='Back' onClick='playerNightClick(4)' /></Panel></Cell></Row>" ..
-        "<Row preferredHeight='400'>" ..
-            "<Cell height='400' width='300'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard1' image='Back' onClick='playerNightClick(1)' /></Panel></Cell>" ..
-            "<Cell height='400' width='300'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard2' image='Back' onClick='playerNightClick(2)' /></Panel></Cell>" ..
-            "<Cell height='400' width='300'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard3' image='Back' onClick='playerNightClick(3)' /></Panel></Cell>" ..
-        "</Row>" ..
+    xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "CenterCards' class='CenterCards' active='false'>" ..
+        "<Row preferredHeight='100'><Cell columnSpan='3'><Panel><Text id='" .. this.color .. "CenterCardsInstructions' class='CenterCardsInstructions'>Default text</Text></Panel></Cell></Row>" ..
+        "<Row id='" .. this.color .."CenterCardsAW' preferredHeight='300' active='false'><Cell columnSpan='3'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard4' class='CenterCardsMiddleCard4' /></Panel></Cell></Row>" ..
+        "<Row preferredHeight='400'>"
+            for i= 1, 3 do
+                "<Cell height='400' width='300'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard" .. i .. "' image='Back' onClick='playerNightClick(" .. i .. ")' /></Panel></Cell>"
+            end
+        xmlToAdd = xmlToAdd .. "</Row>" ..
     "</TableLayout>"
 
-    xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "PlayerList' width='800' height='750' cellSize='800 150' visibility=' '>" ..
-        "<Text id='" .. this.color .. "PlayerListInstructions' alignment='MiddleLeft' color='Black' fontStyle='Bold' fontSize='30'>Default Text</Text>"
+    xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "PlayerList' class='PlayerList' active='false'>" ..
+        "<Text id='" .. this.color .. "PlayerListInstructions' class='PlayerListInstructions'>Default Text</Text>"
         local i = 1
         for color, player in pairs(Game.players) do
-            xmlToAdd = xmlToAdd .. "<Panel><Panel id='" .. this.color .. "PlayerList" .. i .. "' width='400' height='150' color='" .. color .. "' visibility=' '><Text id='" .. this.color .. "PlayerList" .. i .. "Text' color='Black' fontSize='25'>" .. player.player.steam_name .. "</Text></Panel></Panel>"
+            xmlToAdd = xmlToAdd .. "<Panel><Panel id='" .. this.color .. "PlayerList" .. i .. "' class='PlayerListColorPanel' color='" .. color .. "' active='false'><Text id='" .. this.color .. "PlayerList" .. i .. "Text' class='PlayerListColorText'>" .. player.player.steam_name .. "</Text></Panel></Panel>"
             i = i + 1
         end
-        xmlToAdd = xmlToAdd .. "<Panel><Panel id='" .. this.color .. "PlayerListExtra' width='400' height='150' color='White' visibility=' '><Text id='" .. this.color .. "PlayerListExtraText' color='Black' fontSize='25'></Text></Panel></Panel>"
+        xmlToAdd = xmlToAdd .. "<Panel><Panel id='" .. this.color .. "PlayerListExtra' class='PlayerListExtra' active='false'><Text id='" .. this.color .. "PlayerListExtraText' class='PlayerListExtraText'></Text></Panel></Panel>"
     xmlToAdd = xmlToAdd .. "</GridLayout>"
 
-    xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "PlayerShow' columnWidths='500' cellBackgroundColor='Clear' width='500' height='700' visibility=' '>" ..
-        "<Row preferredHeight='200'><Cell><Panel><Text id='" .. this.color .. "PlayerShowInstructions' alignment='MiddleLeft' color='Blue' fontStyle='Bold' fontSize='30'>Default Text</Text></Panel></Cell></Row>" ..
-        "<Row preferredHeight='400'><Cell><Panel><Image id='" .. this.color .. "PlayerShowCard' image='Back' width='300' height='400' /></Panel></Cell></Row>" ..
-        "<Row preferredHeight='100'><Cell><Panel id='" .. this.color .. "PlayerShowButton' color='Green' width='300' height='100' onClick='playerNightClick(continue)' visibility=' '><Text id='" .. this.color .. "PlayerShowButtonText' color='Black' fontSize='25'>Continue</Text></Panel></Cell></Row>" ..
+    xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "PlayerShow' class='PlayerShow' active='false'>" ..
+        "<Row preferredHeight='200'><Cell><Panel><Text id='" .. this.color .. "PlayerShowInstructions' class='PlayerShowInstructions'>Default Text</Text></Panel></Cell></Row>" ..
+        "<Row preferredHeight='400'><Cell><Panel><Image id='" .. this.color .. "PlayerShowCard' class='PlayerShowCard' /></Panel></Cell></Row>" ..
+        "<Row preferredHeight='100'><Cell><Panel id='" .. this.color .. "PlayerShowButton' class='PlayerShowButton' active='false'><Text id='" .. this.color .. "PlayerShowButtonText' class='PlayerShowButtonText'></Text></Panel></Cell></Row>" ..
     "</TableLayout>"
 
     return xmlToAdd
