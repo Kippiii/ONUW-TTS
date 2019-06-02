@@ -1,0 +1,39 @@
+<Defaults>
+    <Image class="role" width="190" height="190" />
+    <VerticalLayout class="playerRole" width="600" height="1000"/>
+</Defaults>
+
+<!-- Start Button -->
+<Panel id="startButton" width="250" height="150" rectAlignment="UpperLeft" offsetXY="75 -10" allowDragging="true" returnToOriginalPositionWhenReleased="false" visibility='Admin'>
+    <Button color="#FFFFFF" fontSize="100" onClick="start">Start</Button>
+</Panel>
+
+<!-- Role Selector -->
+<Panel id="roleSelectorSwitch" width="50%" height="75" rectAlignment="UpperCenter" offsetXY="0 -75" allowDragging="true" returnToOriginalPositionWhenReleased="false">
+    <Button fontSize="25" onClick="roleSelectToggle">Role Selector</Button>
+</Panel>
+<VerticalScrollView width="800" height="600" id="roleSelector" noScrollbars="true" scrollSensitivity="20" visibility=" ">
+    <Text>RoleSelector!</Text>
+</VerticalScrollView>
+
+<!-- Claim Switch -->
+<Panel id ='claimSwitch' width='8%' height='300' rectAlignment='MiddleRight' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' ' offsetXY='0 100'>
+    <Button fontSize='50' onClick='claimToggle'>Make a claim</Button>
+</Panel>
+
+<!-- Code for Debugger -->
+<Panel id='debuggerSwitch' width='300' height='100' rectAlignment='UpperRight' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' '>
+    <Button fontSize='50' onClick='openDebug'>Debugger</Button>
+</Panel>
+
+<GridLayout id='debugger' width='500' height='500' rectAlignment='MiddleCenter' allowDragging='true' returnToOriginalPositionWhenReleased='false' cellSize='500 100' visibility=' '>
+    <Panel><Button fontSize='50' onClick='forceReady()'>Force Ready</Button></Panel>
+    <Panel><Button fontSize='50' onClick='skipTimer()'>Skip Timer</Button></Panel>
+    <Panel><Button fontSize='50' onClick='pauseGame()'>Pause</Button></Panel>
+    <Panel><Button fontSize='50' onClick='updateUI()'>Update UI</Button></Panel>
+    <Panel><Button fontSize='50' onClick='forceVote()'>Force Vote</Button></Panel>
+</GridLayout>
+
+<GridLayout id='forceVote' width='800' height='900' cellSize='400 150' visibility=' '>
+    <Text>ForceVote!</Text>
+</GridLayout>

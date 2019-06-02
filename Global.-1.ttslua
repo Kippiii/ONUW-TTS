@@ -1,0 +1,16 @@
+debug = true
+debugReady = true
+
+#include /ONUW/global.ttslua
+
+#include /ONUW/classes.ttslua
+
+#include /ONUW/main.ttslua
+
+#include /ONUW/functions.ttslua
+
+#include /ONUW/utilities.ttslua
+
+#include /ONUW/events.ttslua
+
+#include /ONUW/debug.ttslua

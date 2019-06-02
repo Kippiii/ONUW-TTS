@@ -1,0 +1,16 @@
+function startTimer()
+    self.Clock.setValue(300)
+    self.Clock.paused = false
+    function checkTime()
+        if self.Clock.getValue() <= 0 then
+            Global.call("callVote", {})
+        else
+            Wait.time(checkTime, 1)
+        end
+    end
+    checkTime()
+end
+
+function stop()
+    self.Clock.setValue(0)
+end
