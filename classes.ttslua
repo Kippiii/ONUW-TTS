@@ -1,21 +1,21 @@
 --Class for a Player
 MyPlayer = inherit(nil)
 MyPlayer.color = ''
-MyPlayer.player = {}
-MyPlayer.roleSelector = false
-MyPlayer.claimSelector = false
+--MyPlayer.player = {}  TODO Fix this removal!
+MyPlayer.roleSelector = false --TODO Remove this functionality?
+MyPlayer.claimSelector = false --TODO Remove this functionality?
 MyPlayer.role = {}
-MyPlayer.endRole = {}
-MyPlayer.ready = false
+MyPlayer.endRole = {} --TODO Different system?
+MyPlayer.ready = false --TODO More specific?
 MyPlayer.cardUI = {}
 MyPlayer.vote = ''
 MyPlayer.claim = ''
 MyPlayer.disconnected = false
-MyPlayer.protected = false
+MyPlayer.protected = false --TODO Can this be made more Sentinel-sided?
 function MyPlayer.constructor(this, args)
     color = args.color
     this.color = color
-    this.player = Player[color]
+    --this.player = Player[color]
 end
 function MyPlayer.revealRole(this, color, role)
     this.cardUI.UI.setAttribute(color .. "Image", 'image', role.name .. ' Card')
@@ -26,27 +26,26 @@ function MyPlayer.setRole(this, role)
     this.endRole = table.clone(this.role)
 end
 function MyPlayer.generateCard(this)
-    local object = spawnObject({type="Checker_white", position=cardLocation[this.color].position, rotation=cardLocation[this.color].rotation, sound=false})
+    local object = spawnObject({type="Checker_white", position=cardLocation[this.color].position, rotation=cardLocation[this.color].rotation, sound=false, callback_function=setupCard}) --TODO Position based on hand location
 
-    local xmlToAdd = ""
-    for _, color in pairs(Player.getColors()) do
-        if color == this.color then
-            xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 1000 0' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='" .. Game.players[color].role.name .. " Card' /><Image id='" .. color .. "Sentinel' image='Sentinel Token' visibility=' ' /></Panel>"
-        else
-            xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 1000 0' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /><Image id='" .. color .. "Sentinel' width='100' height='100' image='Sentinel Token' visibility=' ' /></Panel>"
+    function setupCard()
+        local xmlToAdd = ""
+        for _, color in pairs(Player.getColors()) do
+            if color == this.color then
+                xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 1000 0' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='" .. Game.players[color].role.name .. " Card' /><Image id='" .. color .. "Sentinel' image='Sentinel Token' visibility=' ' /></Panel>"
+            else
+                xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 1000 0' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /><Image id='" .. color .. "Sentinel' width='100' height='100' image='Sentinel Token' visibility=' ' /></Panel>"
+            end
         end
-    end
-    xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "Claim' width='800' height='800' position='0 -750 -1300' rotation='90 0 180' visibility=' '><Image id='" .. this.color .. "ClaimImage' /></Panel>" ..
-    "<Panel id='" .. this.color .. "ClaimMini' width='300' height='300' position='0 1350 0' visibility=' '><Image id='" .. this.color .. "ClaimMiniImage' /></Panel>" ..
-    "<Panel id='" .. this.color .. "Ready' width='150' height='150' position='0 650 0' visibility=''><Image id='" .. this.color .. "ReadyImage' image='Red Light' /></Panel>"
+        xmlToAdd = xmlToAdd .. "<Panel id='" .. this.color .. "Claim' width='800' height='800' position='0 -750 -1300' rotation='90 0 180' visibility=' '><Image id='" .. this.color .. "ClaimImage' /></Panel>" ..
+        "<Panel id='" .. this.color .. "ClaimMini' width='300' height='300' position='0 1350 0' visibility=' '><Image id='" .. this.color .. "ClaimMiniImage' /></Panel>" ..
+        "<Panel id='" .. this.color .. "Ready' width='150' height='150' position='0 650 0' visibility=''><Image id='" .. this.color .. "ReadyImage' image='Red Light' /></Panel>"
 
-    this.cardUI = object
-    this.cardUI.setInvisibleTo(Player.getColors())
-    function setXml()
+        this.cardUI = object
+        this.cardUI.setInvisibleTo(Player.getColors())
         this.cardUI.setLock(true)
         this.cardUI.UI.setXml(xmlToAdd)
     end
-    Wait.time(setXml, 0.5)
 end
 function MyPlayer.hasWon(this)
     for i, team in ipairs(Game.winningTeams) do
@@ -102,7 +101,6 @@ end
 
 --Class for all roles in the game
 Role = inherit(nil)
-Role.functionName = ""
 Role.name = ""
 Role.team = ""
 Role.werewolf = false
@@ -134,7 +132,6 @@ end
 --Class for the sentinel role
 Sentinel = inherit(Role)
 Sentinel.name = "Sentinel"
-Sentinel.functionName = Sentinel.name
 Sentinel.team = "Village"
 Sentinel.description = "Choose one other player to have their card be unable to be looked at or changed."
 Sentinel.earlyDoppel = true
@@ -183,7 +180,6 @@ end
 --Class for the dopleganger role
 Doppelganger = inherit(Role)
 Doppelganger.name = "Doppelganger"
-Doppelganger.functionName = Doppelganger.name
 Doppelganger.team = "Village"
 Doppelganger.description = "The Doppelganger wakes up before everyone else and view another player's role. The Doppelganger is now that role. She is not only on the same team as the role in which she views, but she also gets to do the night action of the card in which she saw."
 Doppelganger.prenight = true
@@ -198,7 +194,7 @@ function Doppelganger.nightClick(this, value)
     if value == this.color then return end
     if this.doppelState == "SELECTING" then
         self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-        this.doppelRole = _G[Game.players[value].role.functionName]()
+        this.doppelRole = Game.players[value].role:class():new()
         this.doppelRole.color = this.color
         this.werewolf = this.doppelRole.werewolf
         this.team = this.doppelRole.team
@@ -275,7 +271,6 @@ end
 --Class for the werewolf role
 Werewolf = inherit(Role)
 Werewolf.name = "Werewolf"
-Werewolf.functionName = Werewolf.name
 Werewolf.team = "Werewolves"
 Werewolf.werewolf = true
 Werewolf.hidden = false;
@@ -330,7 +325,6 @@ end
 --Class for alpha wolf role
 AlphaWolf = inherit(Role)
 AlphaWolf.name = "Alpha Wolf"
-AlphaWolf.functionName = "AlphaWolf"
 AlphaWolf.team = "Werewolves"
 AlphaWolf.werewolf = true
 AlphaWolf.hidden = false;
@@ -454,7 +448,6 @@ end
 --Werewolf given by Alpha Wolf
 HiddenWolf = inherit(Role)
 HiddenWolf.name = "Werewolf"
-HiddenWolf.functionName = "HiddenWolf"
 HiddenWolf.team = "Werewolves"
 HiddenWolf.werewolf = true
 HiddenWolf.hidden = true;
@@ -462,7 +455,6 @@ HiddenWolf.hidden = true;
 --Class for mystic wolf role
 MysticWolf = inherit(Role)
 MysticWolf.name = "Mystic Wolf"
-MysticWolf.functionName = "MysticWolf"
 MysticWolf.team = "Werewolves"
 MysticWolf.werewolf = true
 MysticWolf.hidden = false;
@@ -571,7 +563,6 @@ end
 --Class for the minion role
 Minion = inherit(Role)
 Minion.name = "Minion"
-Minion.functionName = Minion.name
 Minion.team = "Werewolves"
 Minion.description = "The Minion is on the Werewolf team and gets to view the identities of the Werewolves. The Werewolves do not know the identities of the Minion. If the Minion is voted out at the end of the game, it does not count as a Werewolf getting voted out. If no players are Werewolves, the Minion wins as long as one other player (not the Minion) dies."
 function Minion.generateXml(this)
@@ -611,7 +602,6 @@ end
 --Class for the mason role
 Mason = inherit(Role)
 Mason.name = "Mason"
-Mason.functionName = Mason.name
 Mason.team = "Village"
 Mason.description = "The Masons wake up at night and view who the other Mason is, giving the Masons someone to trust."
 Mason.mason = true
@@ -644,7 +634,6 @@ end
 --Class for the seer role
 Seer = inherit(Role)
 Seer.name = "Seer"
-Seer.functionName = this.name
 Seer.team = "Village"
 Seer.description = "At night, the Seer may look either at one other player's card or at two of the center cards, but does not move them."
 Seer.earlyDoppel = true
@@ -705,7 +694,6 @@ end
 --Class for apprentice seer role
 ApprenticeSeer = inherit(Role)
 ApprenticeSeer.name = "Apprentice Seer"
-ApprenticeSeer.functionName = "ApprenticeSeer"
 ApprenticeSeer.team = "Village"
 ApprenticeSeer.description = "At night, the apprentice seer may view one of the center roles."
 ApprenticeSeer.earlyDoppel = true
@@ -730,7 +718,6 @@ end
 --Class for paranormal investigator role
 PI = inherit(Role)
 PI.name = "Paranormal Investigator"
-PI.functionName = "PI"
 PI.team = "Village"
 PI.description = "At night, the Paranormal Investigator may look at up to two other peoples cards. If a werewolf or tanner is viewed, they must stop looking and become a werewolf or tanner, respectively."
 PI.earlyDoppel = true
@@ -779,7 +766,6 @@ end
 --Class for the robber role
 Robber = inherit(Role)
 Robber.name = "Robber"
-Robber.functionName = Robber.name
 Robber.team = "Village"
 Robber.description = "At night, the Robber may choose to rob a card from another player, giving that player their Robber card. The Robber views his new card. The player who receives the Robber card is on the village team. The Robber is on the team of the card he takes, however, he does not do the action of his new role at night."
 Robber.earlyDoppel = true
@@ -814,7 +800,6 @@ end
 --Class for the witch role
 Witch = inherit(Role)
 Witch.name  = "Witch"
-Witch.functionName = Witch.name
 Witch.team = "Village"
 Witch.description = "At night, the Witch may view a card from the center and then must give it to any player of their choice."
 Witch.earlyDoppel = true
@@ -880,7 +865,6 @@ end
 --Class for the troublemaker role
 Troublemaker = inherit(Role)
 Troublemaker.name = "Troublemaker"
-Troublemaker.functionName = Troublemaker.name
 Troublemaker.team = "Village"
 Troublemaker.description = "At night, the Troublemaker may switch the cards of two other players without looking at those cards. The players who recieve a different card are now the role (and team) of their new card, even though they don't know what role that is until the end of the game. The Troublemaker is on the village team."
 Troublemaker.earlyDoppel = true
@@ -919,7 +903,6 @@ end
 --Class for the village idiot role
 VillageIdiot = inherit(Role)
 VillageIdiot.name = "Village Idiot"
-VillageIdiot.functionName = "VillageIdiot"
 VillageIdiot.team = "Village"
 VillageIdiot.description = "At night, choose to either rotate all other player's cards to the left or to the right."
 VillageIdiot.earlyDoppel = true
@@ -987,7 +970,6 @@ end
 --Class for the drunk role
 Drunk = inherit(Role)
 Drunk.name = "Drunk"
-Drunk.functionName = this.name
 Drunk.team = "Village"
 Drunk.description = "The Drunk is so drunk that he doesn't remember his role. When it comes time to wake up at night, he must exchange his Drunk card for any card in the center, but he does not look at it. The Drunk is now the new role in front of him (even though he doesn't know what that new role is) and is on that team."
 Drunk.earlyDoppel = true
@@ -1030,7 +1012,6 @@ end
 --Class for the insomniac role
 Insomniac = inherit(Role)
 Insomniac.name = "Insomniac"
-Insomniac.functionName = Insomniac.name
 Insomniac.team = "Village"
 Insomniac.description = "The Insomniac wakes up and looks at her card (to see if it has changed)."
 function Insomniac.endNight(this)
@@ -1042,7 +1023,6 @@ end
 --Class for the revealer role
 Revealer = inherit(Role)
 Revealer.name = "Revealer"
-Revealer.functionName = Revealer.name
 Revealer.team = "Village"
 Revealer.description = "The revealer reveals the card of one player to all other players, unless it is a werewolf or a tanner."
 Revealer.selection = ""
@@ -1082,7 +1062,6 @@ end
 --Class for the villager role
 Villager = inherit(Role)
 Villager.name = "Villager"
-Villager.functionName = Villager.name
 Villager.team = "Village"
 Villager.description = "The Villager has no special abilities, but he is definitely not a werewolf."
 
@@ -1090,7 +1069,6 @@ Villager.description = "The Villager has no special abilities, but he is definit
 --Class for the hunter role
 Hunter = inherit(Role)
 Hunter.name = "Hunter"
-Hunter.functionName = Hunter.name
 Hunter.team = "Village"
 Hunter.description = "If the Hunter dies, the player he is pointing at dies as well (regardless of how many votes his target recieves)."
 function Hunter.voteAbility(this)
@@ -1112,7 +1090,6 @@ end
 --Class for the tanner role
 Tanner = inherit(Role)
 Tanner.name = "Tanner"
-Tanner.functionName = Tanner.name
 Tanner.team = "Tanner"
 Tanner.tanner = true
 Tanner.description = "The Tanner hates his job so much that he wants to die. The Tanner only wins if he dies. If the Tanner dies and no Werewolves die, the Werewolves do not win. If the Tanner dies and a Werewolf also dies, the village team wins too. The Tanner is considered a member of the village (but is not on their team), so if the Tanner dies when all werewolves are in the center, the village team loses."
@@ -1121,7 +1098,6 @@ Tanner.description = "The Tanner hates his job so much that he wants to die. The
 --Class for the dream wolf class
 DreamWolf = inherit(Role)
 DreamWolf.name = "Dream Wolf"
-DreamWolf.functionName = "DreamWolf"
 DreamWolf.team = "Werewolves"
 DreamWolf.werewolf = true
 DreamWolf.description = "The dream wolf is a werewolf that does not get to know the identity of the other werewolves."
@@ -1130,7 +1106,6 @@ DreamWolf.description = "The dream wolf is a werewolf that does not get to know 
 --Class for the bodyguard class
 BodyGuard = inherit(Role)
 BodyGuard.name = "Bodyguard"
-BodyGuard.functionName = BodyGuard.name
 BodyGuard.team = "Village"
 BodyGuard.description = "The person who the bodyguard votes for cannot be voted out."
 function BodyGuard.voteAbility(this)
