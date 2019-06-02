@@ -75,7 +75,7 @@ function MyPlayer.generateXml(this)
     end
     xmlToAdd = xmlToAdd .. "</GridLayout>"
 
-    xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "CenterCards' class='CenterCards' active='false'>" ..
+    xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "CenterCards' class='CenterCards' active='false' visibility='" .. this.color .. "'>" ..
         "<Row preferredHeight='100'><Cell columnSpan='3'><Panel><Text id='" .. this.color .. "CenterCardsInstructions' class='CenterCardsInstructions'>Default text</Text></Panel></Cell></Row>" ..
         "<Row id='" .. this.color .."CenterCardsAW' preferredHeight='300' active='false'><Cell columnSpan='3'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard4' class='CenterCardsMiddleCard4' /></Panel></Cell></Row>" ..
         "<Row preferredHeight='400'>"
@@ -85,7 +85,7 @@ function MyPlayer.generateXml(this)
         xmlToAdd = xmlToAdd .. "</Row>" ..
     "</TableLayout>"
 
-    xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "PlayerList' class='PlayerList' active='false'>" ..
+    xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "PlayerList' class='PlayerList' active='false' visibility='" .. this.color .. "'>" ..
         "<Text id='" .. this.color .. "PlayerListInstructions' class='PlayerListInstructions'>Default Text</Text>"
         local i = 1
         for color, player in pairs(Game.players) do
@@ -95,7 +95,7 @@ function MyPlayer.generateXml(this)
         xmlToAdd = xmlToAdd .. "<Panel><Panel id='" .. this.color .. "PlayerListExtra' class='PlayerListExtra' active='false'><Text id='" .. this.color .. "PlayerListExtraText' class='PlayerListExtraText'></Text></Panel></Panel>"
     xmlToAdd = xmlToAdd .. "</GridLayout>"
 
-    xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "PlayerShow' class='PlayerShow' active='false'>" ..
+    xmlToAdd = xmlToAdd .. "<TableLayout id='" .. this.color .. "PlayerShow' class='PlayerShow' active='false' visibility='" .. this.color .. "'>" ..
         "<Row preferredHeight='200'><Cell><Panel><Text id='" .. this.color .. "PlayerShowInstructions' class='PlayerShowInstructions'>Default Text</Text></Panel></Cell></Row>" ..
         "<Row preferredHeight='400'><Cell><Panel><Image id='" .. this.color .. "PlayerShowCard' class='PlayerShowCard' /></Panel></Cell></Row>" ..
         "<Row preferredHeight='100'><Cell><Panel id='" .. this.color .. "PlayerShowButton' class='PlayerShowButton' active='false'><Text id='" .. this.color .. "PlayerShowButtonText' class='PlayerShowButtonText'></Text></Panel></Cell></Row>" ..
@@ -145,7 +145,7 @@ Sentinel.prenight = true
 Sentinel.prenightTime = 10
 Sentinel.protectee = ""
 function Sentinel.beginPrenight(this)
-	self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", this.color)
+	self.UI.setAttribute(this.color .. "PlayerSelector", "active", 'true')
 	self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Choose another player to protect their role from being changed or viewed.")
 end
 function Sentinel.nightClick(this, value)
@@ -162,7 +162,7 @@ function Sentinel.nightClick(this, value)
 	end
 end
 function Sentinel.endPrenight(this)
-	self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
+	self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
 	if this.protectee == "" then return end
 
 	--Removes ability to interact with sentinel
