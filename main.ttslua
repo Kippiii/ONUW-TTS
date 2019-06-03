@@ -111,12 +111,12 @@ function start(player)
     end
 
     --Hiding UI elements
-    self.UI.setAttribute("startButton", "visibility", " ")
-    self.UI.setAttribute("roleSelectorSwitch", "visibility", " ")
-    self.UI.setAttribute("roleSelector", "visibility", " ")
+    self.UI.setAttribute("startButton", "active", "false")
+    self.UI.setAttribute("roleSelectorSwitch", "active", "false")
+    self.UI.setAttribute("roleSelector", "active", "false")
 
 	if debug then
-		self.UI.setAttribute('debuggerSwitch', "visibility", "Host")
+		self.UI.setAttribute('debuggerSwitch', "active", "true")
 	end
 
     --Generating the role list
@@ -151,7 +151,7 @@ function start(player)
     for i in pairs(Game.players) do
         local player = Game.players[i]
         local  random = math.random(arrLength(tempRoles))
-        player.setRole(tempRoles[random])
+        player:setRole(tempRoles[random])
         table.remove(tempRoles, random)
     end
     for i = 1, 3 do
@@ -162,26 +162,25 @@ function start(player)
 
     --Spawning all player cards
     for color, player in pairs(Game.players) do
-        player.generateCard()
+        player:generateCard()
     end
 
     --Spawning all center cards
     for i = 1, 3 do
         local delta = 5
-        local object = spawnObject({type="Checker_white", position={x=(-1 * delta) + ((i - 1) * delta), y=0.5, z=0}, rotation={x=0, y=0, z=0}, sound=false})
-        object.setInvisibleTo(Player.getColors())
+        local object = spawnObject({type="Checker_white", position={x=(-1 * delta) + ((i - 1) * delta), y=0.5, z=0}, rotation={x=0, y=0, z=0}, sound=false, callback_function=setupCard})
+        function setupCard()
+            object.setInvisibleTo(Player.getColors())
 
-        xmlToAdd = ""
-        for _, color in pairs(Player.getColors()) do
-            xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
-        end
+            xmlToAdd = ""
+            for _, color in pairs(Player.getColors()) do
+                xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
+            end
 
-        function setXml()
             object.UI.setXml(xmlToAdd)
             object.setLock(true)
+            table.insert(Game.centerRoleCards, object)
         end
-        Wait.time(setXml, 0.5)
-        table.insert(Game.centerRoleCards, object)
     end
 
     --Adding support for Alpha Wolf
@@ -194,21 +193,20 @@ function start(player)
     end
     if fourthCenter then
         --Adding alpha wolf card
-        local object = spawnObject({type="Checker_white", position={x=0, y=0.5, z=5}, rotation={x=0, y=90, z=0}, sound=false})
-        object.setInvisibleTo(Player.getColors())
-        local xmlToAdd = ""
-        for _, color in pairs(Player.getColors()) do
-            xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
-        end
+        local object = spawnObject({type="Checker_white", position={x=0, y=0.5, z=5}, rotation={x=0, y=90, z=0}, sound=false, callback_function=setupCard})
+        function setupCard()
+            object.setInvisibleTo(Player.getColors())
+            local xmlToAdd = ""
+            for _, color in pairs(Player.getColors()) do
+                xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
+            end
 
-        function setXml()
             object.UI.setXml(xmlToAdd)
             object.setLock(true)
-        end
-        Wait.time(setXml, 0.5)
-        table.insert(Game.centerRoleCards, object)
+            table.insert(Game.centerRoleCards, object)
 
-        Game.centerRoles[4] = HiddenWolf()
+            Game.centerRoles[4] = HiddenWolf()
+        end
     end
 
     Wait.time(generateAllXml, 0.25)

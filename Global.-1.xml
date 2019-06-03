@@ -60,12 +60,12 @@
 </VerticalScrollView>
 
 <!-- Claim Switch -->
-<Panel id ='claimSwitch' width='8%' height='300' rectAlignment='MiddleRight' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' ' offsetXY='0 100'>
+<Panel id ='claimSwitch' width='8%' height='300' rectAlignment='MiddleRight' allowDragging='true' returnToOriginalPositionWhenReleased='false' active='false' offsetXY='0 100'>
     <Button fontSize='50' onClick='claimToggle'>Make a claim</Button>
 </Panel>
 
 <!-- Code for Debugger -->
-<Panel id='debuggerSwitch' width='300' height='100' rectAlignment='UpperRight' allowDragging='true' returnToOriginalPositionWhenReleased='false' visibility=' '>
+<Panel id='debuggerSwitch' width='300' height='100' rectAlignment='UpperRight' allowDragging='true' returnToOriginalPositionWhenReleased='false' active='false' visibility='Host'>
     <Button fontSize='50' onClick='openDebug'>Debugger</Button>
 </Panel>
 
