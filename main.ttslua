@@ -205,7 +205,7 @@ function start(player)
             object.setLock(true)
             table.insert(Game.centerRoleCards, object)
 
-            Game.centerRoles[4] = HiddenWolf()
+            Game.centerRoles[4] = HiddenWolf:new()
         end
     end
 
@@ -216,21 +216,7 @@ end
 function ready(player, status)
     if Game.state == "JOIN" then
         if not debugReady then
-            --Fixes TTS garbage
-            if status == "True" then
-                status = true
-            else
-                status = false
-            end
-            --Stores player ready status
-            Game.players[player.color].ready = status
-            --Updates color of button
-            local colorButton = "Red"
-            if status then
-                colorButton = "Green"
-            end
-            self.UI.setAttribute("ready" .. player.color, "color", colorButton)
-            Game.players[player.color].cardUI.UI.setAttribute(player.color .. "ReadyImage", "image", colorButton .. " Light")
+            Game.players[player.color]:toggleReady(status)
             --Checks if everyone is ready
             for color in pairs(Game.players) do
                 if not Game.players[color].ready then
@@ -249,7 +235,7 @@ function ready(player, status)
         end
         if fourthCenter then
             for color, player in pairs(Game.players) do
-                self.UI.setAttribute(color .. "CenterCardsAW", "visibility", color)
+                self.UI.setAttribute(color .. "CenterCardsAW", "active", 'true')
                 self.UI.setAttribute(color .. "CenterCards", "height", "800")
             end
         end

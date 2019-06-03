@@ -103,6 +103,23 @@ function MyPlayer.generateXml(this)
 
     return xmlToAdd
 end
+function MyPlayer.toggleReady(this, status)
+    --Fixes TTS garbage
+    if status == "True" then
+        status = true
+    else
+        status = false
+    end
+    --Stores player ready status
+    this.ready = status
+    --Updates color of button
+    local colorButton = "Red"
+    if status then
+        colorButton = "Green"
+    end
+    self.UI.setAttribute("ready" .. this.color, "color", colorButton)
+    this.cardUI.UI.setAttribute(this.color .. "ReadyImage", "image", colorButton .. " Light")
+end
 
 
 --Class for all roles in the game
