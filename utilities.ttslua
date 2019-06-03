@@ -5,7 +5,13 @@ function canStart()
             roles = roles + 1
         end
     end
-    return roles == getPlayerCount() + 3 and (getPlayerCount() >= 3 or debug)
+    if getPlayerCount() >= 3 then
+        return "Could not start game. You need at least 3 players, and you currently have " .. getPlayerCount() .."!"
+    end
+    if roles ~= getPlayerCount() + 3 then
+        return "Could not start game. You have selected " .. roles .. " roles, and you need to have " .. (getPlayerCount() + 3) .. " in order to start!"
+    end
+    return nil
 end
 
 function getRoleNumber(role)

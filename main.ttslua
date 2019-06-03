@@ -104,8 +104,9 @@ end
 function start(player)
     --Deciding whether the game can start
     if not player.promoted and not player.host then return end
-    if not canStart() then
-        broadcastToColor("Could not start game. Ensure that there are at least 3 players and the number of roles equals the number of players plus three", player.color, {100, 0, 0})
+    startingString = canStart(player)
+    if startingString ~= nil then
+        broadcastToColor(startingString, player.color, {100, 0, 0})
         return
     end
 
