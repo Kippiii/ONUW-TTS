@@ -303,6 +303,7 @@ function continuePrenight()
 		return
 	end
     --TODO Same for this one as above
+    --TODO Copy-and-pasted code
     self.UI.setAttribute(Game.prenightRoles[1].color .. "Role", "active", "false")
 	Game.prenightRoles[1]:beginPrenight()			player.role.beginPrenight()
 
@@ -315,10 +316,10 @@ function startNightPhase()
     broadcastToAll("The night phase has begun!", "Grey")
     Game.state = "NIGHT"
     for color in pairs(Game.players) do
-        self.UI.setAttribute(color .. "Role", "visibility", " ")
-        Game.players[color].role.startNightAbility()
+        self.UI.setAttribute(color .. "Role", "active", "false")
+        Game.players[color].role:startNightAbility()
     end
-    self.UI.setAttribute("nightTimer", "visibility", "")
+    self.UI.setAttribute("nightTimer", "active", "true")
     timer("nightTime", endNight)
 end
 
@@ -344,19 +345,19 @@ function endNight()
     end
 
     for i, role in ipairs(playerList) do
-        role.endNight()
+        role:endNight()
     end
 
     Game.state = "DAY"
-    for color, player in pairs(Game.players) do
-        player.player.blindfolded = false
+    for color in pairs(Game.players) do
+        Player[color].blindfolded = false
     end
 
-    self.UI.setAttribute("claimSwitch", "visibility", "")
-    self.UI.setAttribute("nightTimer", "visibility", " ")
-    self.UI.setAttribute("voteSwitch", "visibility", "")
+    self.UI.setAttribute("claimSwitch", "active", "true")
+    self.UI.setAttribute("nightTimer", "active", "false")
+    self.UI.setAttribute("voteSwitch", "active", "true")
 
-    Game.clock = getObjectFromGUID("cabd89")
+    Game.clock = getObjectFromGUID("cabd89") --TODO Make it a global variable?
     Game.clock.call("startTimer")
 
     for color, player in pairs(Game.players) do
