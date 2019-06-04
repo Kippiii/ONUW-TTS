@@ -280,7 +280,7 @@ function continuePrenight()
     --TODO Same for this one as above
     --TODO Copy-and-pasted code
     self.UI.setAttribute(Game.prenightRoles[1].color .. "Role", "active", "false")
-	Game.prenightRoles[1]:beginPrenight()			player.role.beginPrenight()
+	Game.prenightRoles[1]:beginPrenight()
 
 	self.UI.setValue("prenightTime", Game.prenightRoles[1].prenightTime)
 	timer("prenightTime", continuePrenight)
