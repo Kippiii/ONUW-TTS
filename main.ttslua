@@ -259,13 +259,7 @@ end
 
 --Runs at the beginning of Prenight
 function startPrenight()
-	broadcastToAll("The Prenight Phase has begun!", "Blue")
-	local prenights = {}
-	for color, player in pairs(Game.players) do
-		if player.role.prenight then
-			table.insert(player)
-		end
-	end
+	broadcastToAll("The Prenight Phase has begun!", "Blue") --TODO More specific messages
 	Game.state = "PRENIGHT"
 
 	--Generates the prenight roles list
@@ -288,42 +282,30 @@ function startPrenight()
     end
 	Game.prenightRoles = prenightRoles
 
+    --TODO Double-check that this code change works.
 	--Begins the first person's prenight
-	for color, player in pairs(Game.players) do
-		if player.role.name == Game.prenightRoles[1].name then
-			self.UI.setAttribute(color .. "Role", "visibility", " ")
-			player.role.beginPrenight()
-			break
-		end
-	end
+	self.UI.setAttribute(Game.prenightRoles[1].color .. "Role", "active", "false")
+	Game.prenightRoles[1]:beginPrenight()
 
-	self.UI.setAttribute("prenightTimer", "visibility", "")
+	self.UI.setAttribute("prenightTimer", "active", "true")
 	self.UI.setValue("prenightTime", Game.prenightRoles[1].prenightTime)
 	timer("prenightTime", continuePrenight)
 end
 
 --Runs after every person is done with their prenight action
 function continuePrenight()
-	for color, player in pairs(Game.players) do
-		if player.role.name == Game.prenightRoles[1].name then
-			self.UI.setAttribute(color .. "Role", "visibility", color)
-			player.role.endPrenight()
-			break
-		end
-	end
+	self.UI.setAttribute(Game.prenightRoles[1].color .. "Role", "active", 'true')
+	Game.prenightRoles[1]:endPrenight()
 	table.remove(Game.prenightRoles, 1)
 	if arrLength(Game.prenightRoles) < 1 then
-        self.UI.setAttribute("prenightTimer", "visibility", " ")
+        self.UI.setAttribute("prenightTimer", "active", "false")
 		startNightPhase()
 		return
 	end
-	for color, player in pairs(Game.players) do
-		if player.role.name == Game.prenightRoles[1].name then
-            self.UI.setAttribute(color .. "Role", "visibility", " ")
-			player.role.beginPrenight()
-			break
-		end
-	end
+    --TODO Same for this one as above
+    self.UI.setAttribute(Game.prenightRoles[1].color .. "Role", "active", "false")
+	Game.prenightRoles[1]:beginPrenight()			player.role.beginPrenight()
+
 	self.UI.setValue("prenightTime", Game.prenightRoles[1].prenightTime)
 	timer("prenightTime", continuePrenight)
 end
