@@ -1,6 +1,5 @@
 function onLoad()
     math.randomseed(os.time())
-    addAllPlayers(players)
     generateRoleList()
 end
 
@@ -138,8 +137,8 @@ function start(player)
 
     --Adding all players to the game
     for _, player in pairs(Player.getPlayers()) do
-        if players[player.color] ~= nil then
-            Game.players[player.color] = players[player.color]
+        if player.color ~= "Grey" and player.color ~= "Black" then
+            Game.players[player.color] = MyPlayer:new({color=player.color})
         end
     end
 

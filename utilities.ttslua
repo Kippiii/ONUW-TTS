@@ -43,19 +43,6 @@ function getDisconnect()
     return false
 end
 
---Adds all players to an array
-function addAllPlayers(table)
-    for color in pairs(table) do
-        table[color] = nil
-    end
-
-    for i, player in pairs(Player.getPlayers()) do
-        if player.color ~= "Grey" and player.color ~= "Black" then
-            table[player.color] = MyPlayer(player.color)
-        end
-    end
-end
-
 --Replacement in UI
 function replaceInUI(original, replacement)
     local ui = self.UI.getXml()
@@ -65,6 +52,7 @@ function replaceInUI(original, replacement)
     end
 end
 
+--TODO Delete this stupid function
 function arrLength(arr)
     local length = 0
     for i, v in ipairs(arr) do

@@ -1,5 +1,4 @@
 function onPlayerChangeColor(player_color)
-    addAllPlayers(players)
     if Game.state ~= "JOIN" then
         if getDisconnect() then
             Game.paused = true

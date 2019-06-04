@@ -2,7 +2,6 @@ debug = true;
 debugReady = false
 
 --Global variables
-players = {}
 possibleRoles = {}
 Game = {
     state = "JOIN", --JOIN, PRENIGHT, NIGHT, DAY
@@ -16,7 +15,7 @@ Game = {
     dead = {},
     winningTeams = {},
     clock = {},
-	
+
 }
 allColors = {"White", "Brown", "Red", "Orange", "Yellow", "Green", "Teal", "Blue", "Purple", "Pink"}
 cardLocation = {White={position={x=23.67, y=0.5, z=-28.32}, rotation={x=0, y=0, z=0}},
