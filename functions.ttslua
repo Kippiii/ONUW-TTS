@@ -50,7 +50,7 @@ function roleSelect(player, index)
     end
     index = tonumber(index)
     local color = ""
-    if(possibleRoles[index].selected) then
+    if possibleRoles[index].selected then
         color = "#808080"
     else
         color = "#FFFFFF"
@@ -74,6 +74,22 @@ function claimSelect(player, index)
         player.cardUI.UI.setAttribute(player.color .. "ClaimImage", "image", roleName)
         player.cardUI.UI.setAttribute(player.color .. "ClaimMiniImage", "image", roleName)
         player.claim = roleName
+    end
+end
+
+function spawnCenterCard(position, rotation)
+    local object = spawnObject({type="Checker_white", position=position, rotation=rotation, sound=false, callback_function=setupCard})
+    function setupCard()
+        object.setInvisibleTo(Player.getColors())
+
+        xmlToAdd = ""
+        for _, color in pairs(Player.getColors()) do
+            xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
+        end
+
+        object.UI.setXml(xmlToAdd)
+        object.setLock(true)
+        table.insert(Game.centerRoleCards, object)
     end
 end
 

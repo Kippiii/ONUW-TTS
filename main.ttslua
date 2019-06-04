@@ -147,8 +147,8 @@ function start(player)
     for _, role in ipairs(Game.roles) do
         table.insert(tempRoles, role)
     end
-    for i in pairs(Game.players) do
-        local player = Game.players[i]
+    for color in pairs(Game.players) do
+        local player = Game.players[color]
         local  random = math.random(arrLength(tempRoles))
         player:setRole(tempRoles[random])
         table.remove(tempRoles, random)
@@ -167,19 +167,7 @@ function start(player)
     --Spawning all center cards
     for i = 1, 3 do
         local delta = 5
-        local object = spawnObject({type="Checker_white", position={x=(-1 * delta) + ((i - 1) * delta), y=0.5, z=0}, rotation={x=0, y=0, z=0}, sound=false, callback_function=setupCard})
-        function setupCard()
-            object.setInvisibleTo(Player.getColors())
-
-            xmlToAdd = ""
-            for _, color in pairs(Player.getColors()) do
-                xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
-            end
-
-            object.UI.setXml(xmlToAdd)
-            object.setLock(true)
-            table.insert(Game.centerRoleCards, object)
-        end
+        spawnCenterCard({x=(-1 * delta) + ((i - 1) * delta), y=0.5, z=0}, {x=0, y=0, z=0})
     end
 
     --Adding support for Alpha Wolf
@@ -192,20 +180,8 @@ function start(player)
     end
     if fourthCenter then
         --Adding alpha wolf card
-        local object = spawnObject({type="Checker_white", position={x=0, y=0.5, z=5}, rotation={x=0, y=90, z=0}, sound=false, callback_function=setupCard})
-        function setupCard()
-            object.setInvisibleTo(Player.getColors())
-            local xmlToAdd = ""
-            for _, color in pairs(Player.getColors()) do
-                xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
-            end
-
-            object.UI.setXml(xmlToAdd)
-            object.setLock(true)
-            table.insert(Game.centerRoleCards, object)
-
-            Game.centerRoles[4] = HiddenWolf:new()
-        end
+        spawnCenterCard({x=0, y=0.5, z=5}, {x=0, y=90, z=0})
+        Game.centerRoles[4] = HiddenWolf:new()
     end
 
     Wait.time(generateAllXml, 0.25)
