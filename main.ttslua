@@ -449,8 +449,8 @@ function endGame()
 
     Game.clock.Clock.pauseStart()
 
-    for color, player in pairs(Game.players) do
-        self.UI.setAttribute(color .. "Voting", "visibility", " ")
+    for color in pairs(Game.players) do
+        self.UI.setAttribute(color .. "Voting", "active", "false")
     end
 
     --Declaring the winning teams
@@ -463,7 +463,7 @@ function endGame()
     end
     local deadTanner = false
     for i, color in ipairs(Game.dead) do
-        if Game.players[color].endRole.name == "Tanner" or Game.players[color].endRole.team == "doppleTanner" or Game.players[color].endRole.team == "PITanner" then
+        if Game.players[color].endRole.team == "Tanner" or Game.players[color].endRole.team == "doppleTanner" or Game.players[color].endRole.team == "PITanner" then
             table.insert(Game.winningTeams, Game.players[color].endRole.team)
             deadTanner = true
         end
@@ -493,15 +493,15 @@ function endGame()
     for color, player in pairs(Game.players) do
         local object = player.cardUI
         if player.hasWon() then
-            object.UI.setXml("<Panel width='300' height='400' position='0 1000 -500' rotation='45 0 180' scale='3 3' visibility='' id='card'><Image image='" .. player.endRole.name .. " Card' /></Panel>")
+            object.UI.setXml("<Panel width='300' height='400' position='0 1000 -500' rotation='45 0 180' scale='3 3' id='card'><Image image='" .. player.endRole.name .. " Card' /></Panel>")
         else
-            object.UI.setXml("<Panel width='300' height='400' position='0 1000 -50' visibility='' id='card'><Image image='" .. player.endRole.name .. " Card' /></Panel>")
+            object.UI.setXml("<Panel width='300' height='400' position='0 1000 -50' id='card'><Image image='" .. player.endRole.name .. " Card' /></Panel>")
         end
 
         local vote = player.vote
         local vector = {
-            points = { {player.player.getHandTransform().position.x, 1, player.player.getHandTransform().position.z}, {lineEndLocations[vote].position.x, 1.5, lineEndLocations[vote].position.z} },
-            color = player.color,
+            points = { {Player[color].getHandTransform().position.x, 1, Player[color].getHandTransform().position.z}, {lineEndLocations[vote].position.x, 1.5, lineEndLocations[vote].position.z} },
+            color = color,
             thickness = 0.5
         }
         table.insert(vectors, vector)
@@ -509,6 +509,6 @@ function endGame()
     Global.setVectorLines(vectors)
 
     for i, object in ipairs(Game.centerRoleCards) do
-        object.UI.setXml("<Panel width='300' height='400' position='0 0 -50' visibility='' id='back'><Image image='" .. Game.centerRoles[i].name .. " Card' /></Panel>")
+        object.UI.setXml("<Panel width='300' height='400' position='0 0 -50' id='back'><Image image='" .. Game.centerRoles[i].name .. " Card' /></Panel>")
     end
 end
