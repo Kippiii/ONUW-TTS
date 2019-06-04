@@ -379,9 +379,9 @@ end
 
 --Runs when a vote is ready to be called
 function callVote()
-    self.UI.setAttribute("voteSwitch", "visibility", " ")
-    self.UI.setAttribute("claimSelector", "visibility", " ")
-    self.UI.setAttribute("claimSwitch", "visibility", " ")
+    self.UI.setAttribute("voteSwitch", "active", "false")
+    self.UI.setAttribute("claimSelector", "active", "false")
+    self.UI.setAttribute("claimSwitch", "active", "false")
     local everyoneVoted = true
     for color, player in pairs(Game.players) do
         if player.vote == "" then
@@ -391,7 +391,7 @@ function callVote()
 
     if not everyoneVoted then
         for color, player in pairs(Game.players) do
-            self.UI.setAttribute(color .. "Voting", "visibility", color)
+            self.UI.setAttribute(color .. "Voting", "active", 'true')
         end
         return
     end
@@ -415,7 +415,7 @@ function callVote()
     end
     Game.dead = highestVotes
     for color, player in pairs(Game.players) do
-        player.role.voteAbility()
+        player.role:voteAbility()
     end
 
     local playerCount = 0
