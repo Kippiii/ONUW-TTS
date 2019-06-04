@@ -65,12 +65,12 @@ function claimSelect(player, index)
     player = Game.players[player.color]
     roleName = Game.roles[index].name
     if player.claim == roleName then
-        player.cardUI.UI.setAttribute(player.color .. "Claim", "visibility", " ")
-        player.cardUI.UI.setAttribute(player.color .. "ClaimMini", "visibility", " ")
+        player.cardUI.UI.setAttribute(player.color .. "Claim", "active", "false")
+        player.cardUI.UI.setAttribute(player.color .. "ClaimMini", "active", "false")
         player.claim = ""
     else
-        player.cardUI.UI.setAttribute(player.color .. "Claim", "visibility", "")
-        player.cardUI.UI.setAttribute(player.color .. "ClaimMini", "visibility", "")
+        player.cardUI.UI.setAttribute(player.color .. "Claim", "active", "true")
+        player.cardUI.UI.setAttribute(player.color .. "ClaimMini", "active", "true")
         player.cardUI.UI.setAttribute(player.color .. "ClaimImage", "image", roleName)
         player.cardUI.UI.setAttribute(player.color .. "ClaimMiniImage", "image", roleName)
         player.claim = roleName
@@ -78,7 +78,7 @@ function claimSelect(player, index)
 end
 
 function playerNightClick(player, value)
-    Game.players[player.color].role.nightClick(value)
+    Game.players[player.color].role:nightClick(value)
 end
 
 function revealCenterCard(color, roleNum)
@@ -87,14 +87,14 @@ function revealCenterCard(color, roleNum)
 end
 
 function nightBlind()
-    for color, player in pairs(Game.players) do
-        player.player.blindfolded = true
+    for color in pairs(Game.players) do
+        Player[color].blindfolded = true
     end
     function recursiveBlind()
         if Game.state ~= "NIGHT" and Game.state ~= "PRENIGHT" then return end
         for color, player in pairs(Game.players) do
-            if player ~= nil and not player.player.blindfolded then
-                player.player.blindfolded = true
+            if player ~= nil and not Player[color].blindfolded then
+                Player[color].blindfolded = true
                 broadcastToAll(player.color .. " has been caught cheating by removing their blindfold! Ban them!", "Red")
             end
         end
@@ -121,10 +121,10 @@ end
 
 function voteToggle(player)
     local color = player.color
-    if self.UI.getAttribute(color .. "Voting", "visibility") == " " then
-        self.UI.setAttribute(color .. "Voting", "visibility", color)
+    if self.UI.getAttribute(color .. "Voting", "active") == "false" then
+        self.UI.setAttribute(color .. "Voting", "active", 'true')
     else
-        self.UI.setAttribute(color .. "Voting", "visibility", " ")
+        self.UI.setAttribute(color .. "Voting", "active", "false")
     end
 end
 
