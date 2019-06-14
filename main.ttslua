@@ -397,7 +397,7 @@ function callVote()
     for _,_ in pairs(Game.players) do
         playerCount = playerCount + 1
     end
-    if arrLength(Game.dead) == playerCount then
+    if #Game.dead == playerCount then
         Game.dead = {}
     end
 
@@ -406,7 +406,7 @@ end
 
 --Runs at the end of the game
 function endGame()
-    local deadCount = arrLength(Game.dead)
+    local deadCount = #Game.dead
     if deadCount == 0 then
         broadcastToAll("No one has died!", "Green")
     elseif deadCount == 1 then
