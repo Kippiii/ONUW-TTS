@@ -152,48 +152,6 @@ function Role.voteAbility(this)
 end
 
 
---Class for the drunk role
-Drunk = inherit(Role)
-Drunk.name = "Drunk"
-Drunk.team = "Village"
-Drunk.description = "The Drunk is so drunk that he doesn't remember his role. When it comes time to wake up at night, he must exchange his Drunk card for any card in the center, but he does not look at it. The Drunk is now the new role in front of him (even though he doesn't know what that new role is) and is on that team."
-Drunk.earlyDoppel = true
-Drunk.selection = 0
-function Drunk.startNightAbility(this)
-    self.UI.setAttribute(this.color .. "CenterCards", "visibility", this.color)
-    self.UI.setValue(this.color .. "CenterCardsInstructions", "Please choose a card to randomly swap your card with:")
-    for i = 1, 3 do
-        self.UI.setAttribute(this.color .. "CenterCardsMiddleCard" .. i, "color", "#808080")
-    end
-end
-function Drunk.nightClick(this, value)
-    value = tonumber(value)
-    if this.selection == 0 then
-        this.selection = value
-        self.UI.setAttribute(this.color .. "CenterCardsMiddleCard" .. value, "color", "#FFFFFF")
-    elseif value ~= this.selection then
-        self.UI.setAttribute(this.color .. "CenterCardsMiddleCard" .. this.selection, "color", "#808080")
-        this.selection = value
-        self.UI.setAttribute(this.color .. "CenterCardsMiddleCard" .. value, "color", "#FFFFFF")
-    end
-end
-function Drunk.endNight(this)
-    self.UI.setAttribute(this.color .. "CenterCards", "visibility", " ")
-	if this.protected then return end
-    if this.selection == 0 then
-		this.selection = math.random(1, 3)
-		broadcastToColor("You failed to select a center card to swap with, so a center card was chosen for you!", this.color, "Red")
-	end
-
-	local temp = table.clone(Game.centerRoles[this.selection])
-	Game.centerRoles[this.selection] = table.clone(Game.players[this.color].endRole)
-	Game.players[this.color].endRole = temp
-
-	revealCenterCard(this.color, this.selection)
-	Game.players[this.color].cardUI.UI.setAttribute(this.color .. "Image", "image", "Back")
-end
-
-
 --Class for the insomniac role
 Insomniac = inherit(Role)
 Insomniac.name = "Insomniac"
