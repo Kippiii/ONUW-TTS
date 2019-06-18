@@ -1,0 +1,58 @@
+--Class for the seer role
+Seer = inherit(Role)
+Seer.name = "Seer"
+Seer.team = "Village"
+Seer.description = "At night, the Seer may look either at one other player's card or at two of the center cards, but does not move them."
+Seer.earlyDoppel = true
+Seer.nightState = "Start"
+Seer.centerViewed = 0
+function Seer.generateXml(this)
+    local xmlToAdd = ""
+
+    xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "Seer' width='800' height='400' cellSize='800 200' active='false' visibility='" .. this.color .. "'>" ..
+        "<Text color='Blue' fontStyle='Bold' fontSize='40'>Choose to either look at the card of another play or two center cards:</Text>" ..
+        "<GridLayout cellSize='400 200'>" ..
+            "<Panel color='Blue' onClick='playerNightClick(Center)'><Text color='Black' fontSize='30'>Look at two center cards</Text></Panel>" ..
+            "<Panel color='Red' onClick='playerNightClick(Player)'><Text color='Black' fontSize='30'>Look at another player's card</Text></Panel>" ..
+        "</GridLayout>" ..
+    "</GridLayout>"
+
+    return xmlToAdd
+end
+function Seer.startNightAbility(this)
+    self.UI.setAttribute("Seer", "active", "true")
+end
+function Seer.nightClick(this, value)
+    if this.nightState == "Start" then
+        if value == "Center" then
+            this.nightState = "Center"
+            self.UI.setAttribute("Seer", "active", "false")
+            self.UI.setAttribute(this.color .. "CenterCards", "active", "true")
+            self.UI.setValue(this.color .. "CenterCardsInstructions", "Please choose two of the center cards to view:")
+        elseif value == "Player" then
+            this.nightState = "Players"
+            self.UI.setAttribute("Seer", "active", "false")
+            self.UI.setAttribute(this.color .. "PlayerSelector", "active", "true")
+            self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Please choose another player to view their card:")
+        end
+    elseif this.nightState == "Players" then
+        self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+        self.UI.setAttribute(this.color .. "PlayerShow", "active", "true")
+        self.UI.setValue(this.color .. "PlayerShowInstructions", "You looked at " .. value .. "'s role, and it is as follows:")
+        self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.players[value].role.name .. " Card")
+        Game.players[value]:revealRole(this.color, Game.players[value].role)
+    else
+        value = tonumber(value)
+        if self.UI.getAttribute(this.color .. "CenterCardsMiddleCard" .. value, "image") == "Back" and this.centerViewed < 2 then
+            self.UI.setAttribute(this.color .. "CenterCardsMiddleCard" .. value, "image", Game.centerRoles[value].name .. " Card")
+            revealCenterCard(this.color, value)
+            this.centerViewed = this.centerViewed + 1
+        end
+    end
+end
+function Seer.endNight(this)
+    self.UI.setAttribute(this.color .. "Seer", "active", "false")
+    self.UI.setAttribute(this.color .. "CenterCards", "active", "false")
+    self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+    self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
+end
