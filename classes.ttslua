@@ -152,54 +152,6 @@ function Role.voteAbility(this)
 end
 
 
---Class for paranormal investigator role
-PI = inherit(Role)
-PI.name = "Paranormal Investigator"
-PI.team = "Village"
-PI.description = "At night, the Paranormal Investigator may look at up to two other peoples cards. If a werewolf or tanner is viewed, they must stop looking and become a werewolf or tanner, respectively."
-PI.earlyDoppel = true
-PI.nightState = "Player"
-PI.numberLooked = 0
-function PI.startNightAbility(this)
-	self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", this.color)
-	self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Please select a character to view the card of.")
-end
-function PI.nightClick(this, value)
-	if this.nightState == "Player" then
-		this.numberLooked = this.numberLooked + 1
-		this.nightState = "View"
-		self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-        self.UI.setAttribute(this.color .. "PlayerShow", "visibility", this.color)
-        self.UI.setValue(this.color .. "PlayerShowInstructions", "You looked at " .. value .. "'s role, and it is as follows:")
-        self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.players[value].role.name .. " Card")
-        Game.players[value].revealRole(this.color, Game.players[value].role)
-		if Game.players[value].role.werewolf then
-			this.werewolf = true
-			this.team = "Werewolves"
-		elseif Game.players[value].role.tanner then
-			this.tanner = true
-			this.team = "PITanner"
-		else
-			if this.numberLooked < 2 then
-				self.UI.setAttribute(this.color .. "PlayerShowButton", "visibility", this.color)
-				self.UI.setAttribute(this.color .. "PlayerSelector" .. value .. "Panel", "visibility", " ")
-			end
-		end
-	else
-		if value == "continue" then
-			self.UI.setAttribute(this.color .. "PlayerShow", "visibility", " ")
-			self.UI.setAttribute(this.color .. "PlayerShowButton", "visibility", " ")
-			self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", this.color)
-			this.nightState = "Player"
-		end
-	end
-end
-function PI.endNight(this)
-	self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-	self.UI.setAttribute(this.color .. "PlayerShow", "visibility", " ")
-end
-
-
 --Class for the robber role
 Robber = inherit(Role)
 Robber.name = "Robber"
