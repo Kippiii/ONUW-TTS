@@ -1,0 +1,65 @@
+--Class for the village idiot role
+VillageIdiot = inherit(Role)
+VillageIdiot.name = "Village Idiot"
+VillageIdiot.team = "Village"
+VillageIdiot.description = "At night, choose to either rotate all other player's cards to the left or to the right."
+VillageIdiot.earlyDoppel = true
+VillageIdiot.direction = ""
+ function VillageIdiot.generateXml(this)
+    local xmlToAdd = ""
+
+    xmlToAdd = xmlToAdd .. "<GridLayout id='" .. this.color .. "VillageIdiot' width='800' height='400' cellSize='800 200' active='false' visibility='" .. this.color .. "'>" ..
+        "<Text color='Blue' fontStyle='Bold' fontSize='40'>Choose a direction to rotate every other players card in:</Text>" ..
+        "<GridLayout cellSize='400 200'>" ..
+            "<Panel id='" .. this.color .. "VillageIdiotLeft' color='Blue' onClick='playerNightClick(Left)'><Text id='" .. this.color .. "VillageIdiotLeftText' color='Black' fontSize='30'>Left</Text></Panel>" ..
+            "<Panel id='" .. this.color .. "VillageIdiotRight' color='Red' onClick='playerNightClick(Right)'><Text id='" .. this.color .. "VillageIdiotRightText' color='Black' fontSize='30'>Right</Text></Panel>" ..
+        "</GridLayout>" ..
+    "</GridLayout>"
+
+    return xmlToAdd
+end
+function VillageIdiot.startNightAbility(this)
+	self.UI.setAttribute(this.color .. "VillageIdiot", "active", "true")
+end
+function VillageIdiot.nightClick(this, value)
+	if this.direction == "" then
+		self.UI.setAttribute(this.color .. "VillageIdiot" .. value .. "Text", "fontStyle", "Bold")
+		this.direction = value
+	elseif value ~= this.direction then
+		self.UI.setAttribute(this.color .. "VillageIdiot" .. value .. "Text", "fontStyle", "Bold")
+		self.UI.setAttribute(this.color .. "VillageIdiot" .. this.direction .. "Text", "fontStyle", "None")
+		this.direction = value
+	else
+		self.UI.setAttribute(this.color .. "VillageIdiot" .. value .. "Text", "fontStyle", "None")
+		this.direction = ""
+	end
+end
+function VillageIdiot.endNight(this)
+	self.UI.setAttribute(this.color .. "VillageIdiot", "active", "false")
+
+	local colorOrder = {}
+	for i in ipairs(Player.getColors()) do
+		local color = Player.getColors()[i]
+		if Game.players[color] ~= nil and color ~= this.color then
+			table.insert(colorOrder, color)
+		end
+	end
+
+	if this.direction == "Left" then
+		local firstRole = Game.players[colorOrder[1]].endRole
+		for i in ipairs(colorOrder) do
+			if i ~= #colorOrder then
+				Game.players[colorOrder[i]].endRole = Game.players[colorOrder[i + 1]].endRole
+			else
+				Game.players[colorOrder[i]].endRole = firstRole
+			end
+		end
+	else
+		local prevRole = Game.players[colorOrder[#colorOrder]].endRole
+		for i in ipairs(colorOrder) do
+			local temp = Game.players[colorOrder[i]].endRole
+			Game.players[colorOrder[i]].endRole = prevRole
+			prevRole = temp
+		end
+	end
+end
