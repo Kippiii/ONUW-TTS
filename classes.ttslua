@@ -152,45 +152,6 @@ function Role.voteAbility(this)
 end
 
 
---Class for the revealer role
-Revealer = inherit(Role)
-Revealer.name = "Revealer"
-Revealer.team = "Village"
-Revealer.description = "The revealer reveals the card of one player to all other players, unless it is a werewolf or a tanner."
-Revealer.selection = ""
-function Revealer.startNightAbility(this)
-    self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", this.color)
-    self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Choose another player to have their role revealed:")
-end
-function Revealer.nightClick(this, value)
-    if this.selection == "" then
-        self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "Bold")
-		this.selection = value
-    elseif this.selection == value then
-		self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "None")
-		this.selection = ""
-	else
-		self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "Bold")
-		self.UI.setAttribute(this.color .. "PlayerSelector" .. this.selection, "fontStyle", "None")
-		this.selection = value
-	end
-end
-function Revealer.endNight(this)
-    self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-
-	if this.selection ~= "" and not ((Game.players[this.selection].endRole.werewolf or Game.players[this.selection].endRole.tanner) and not (Game.players[this.selection].endRole.name == "Doppelganger" or Game.players[this.selection].endRole.name == "Paranormal Investigator")) then
-		for color in pairs(Game.players) do
-			Game.players[this.selection].revealRole(color, Game.players[this.selection].endRole)
-		end
-        Game.players[this.color].player.broadcast("You have revealed " .. this.selection .. "'s role to the rest of the table!'", "Green")
-        Game.players[this.selection].player.broadcast("Your role has been revealed to the table!", "Green")
-	elseif this.selection ~= "" then
-        Game.players[this.selection].revealRole(this.color, Game.players[this.selection].endRole)
-        Game.players[this.color].player.broadcast("You attempted to reveal the role of " .. this.selection .. ", but they were too evil for you to reveal them.", "Red")
-    end
-end
-
-
 --Class for the villager role
 Villager = inherit(Role)
 Villager.name = "Villager"
