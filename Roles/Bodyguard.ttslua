@@ -1,0 +1,35 @@
+--Class for the bodyguard class
+BodyGuard = inherit(Role)
+BodyGuard.name = "Bodyguard"
+BodyGuard.team = "Village"
+BodyGuard.description = "The person who the bodyguard votes for cannot be voted out."
+function BodyGuard.voteAbility(this)
+    local voteDead = false
+	local votePosition = -1
+	for i, color in ipairs(Game.dead) do
+		if color == Game.players[this.color].vote then
+			voteDead = true
+			votePosition = i
+		end
+	end
+	if voteDead then
+		if #(Game.dead) > 1 then
+			table.remove(Game.dead, votePosition)
+		else
+			local highestVotes = {}
+			local highestVote = -1
+			for color, votes in pairs(Game.votes) do
+				if color ~= Game.players[this.color].vote then
+					if votes > highestVote then
+						highestVotes = {}
+						highestVote = votes
+						table.insert(highestVotes, color)
+					elseif votes == highestVote then
+						table.insert(highestVotes, color)
+					end
+				end
+			end
+			Game.dead = highestVotes
+		end
+	end
+end
