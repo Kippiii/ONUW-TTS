@@ -151,15 +151,6 @@ function Role.voteAbility(this)
 
 end
 
-
---Class for the tanner role
-Tanner = inherit(Role)
-Tanner.name = "Tanner"
-Tanner.team = "Tanner"
-Tanner.tanner = true
-Tanner.description = "The Tanner hates his job so much that he wants to die. The Tanner only wins if he dies. If the Tanner dies and no Werewolves die, the Werewolves do not win. If the Tanner dies and a Werewolf also dies, the village team wins too. The Tanner is considered a member of the village (but is not on their team), so if the Tanner dies when all werewolves are in the center, the village team loses."
-
-
 --Class for the dream wolf class
 DreamWolf = inherit(Role)
 DreamWolf.name = "Dream Wolf"
