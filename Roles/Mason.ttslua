@@ -1,0 +1,30 @@
+--Class for the mason role
+Mason = inherit(Role)
+Mason.name = "Mason"
+Mason.team = "Village"
+Mason.description = "The Masons wake up at night and view who the other Mason is, giving the Masons someone to trust."
+Mason.mason = true
+function Mason.startNightAbility(this)
+    local masons = {}
+    for color in pairs(Game.players) do
+        if Game.players[color].role.mason then
+            table.insert(masons, Game.players[color])
+            if(color ~= this.color) then
+                Game.players[color]:revealRole(this.color, Mason:new())
+            end
+        end
+    end
+    self.UI.setAttribute(this.color .. "PlayerList", "active", "true")
+    self.UI.setValue(this.color .. "PlayerListInstructions", "The following are your fellow masons, who are people you (think you) can trust.")
+    for i, player in ipairs(masons) do
+        local attributes = {
+            color=player.color,
+            visibility=this.color
+        }
+        self.UI.setAttributes(this.color .. "PlayerList" .. i, attributes)
+        self.UI.setValue(this.color .. "PlayerList" .. i .. "Text", player.player.steam_name)
+    end
+end
+function Mason.endNight(this)
+    self.UI.setAttribute(this.color .. "PlayerList", "active", "false")
+end
