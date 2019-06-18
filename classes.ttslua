@@ -152,27 +152,6 @@ function Role.voteAbility(this)
 end
 
 
---Class for the hunter role
-Hunter = inherit(Role)
-Hunter.name = "Hunter"
-Hunter.team = "Village"
-Hunter.description = "If the Hunter dies, the player he is pointing at dies as well (regardless of how many votes his target recieves)."
-function Hunter.voteAbility(this)
-    local dead = false
-    local voteDead = false
-    for i, color in ipairs(Game.dead) do
-        if color == this.color then
-            dead = true
-        elseif color == Game.players[this.color].vote then
-            voteDead = true
-        end
-    end
-    if dead and not voteDead then
-        table.insert(Game.dead, Game.players[this.color].vote)
-    end
-end
-
-
 --Class for the tanner role
 Tanner = inherit(Role)
 Tanner.name = "Tanner"
