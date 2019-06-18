@@ -152,13 +152,6 @@ function Role.voteAbility(this)
 end
 
 
---Class for the villager role
-Villager = inherit(Role)
-Villager.name = "Villager"
-Villager.team = "Village"
-Villager.description = "The Villager has no special abilities, but he is definitely not a werewolf."
-
-
 --Class for the hunter role
 Hunter = inherit(Role)
 Hunter.name = "Hunter"

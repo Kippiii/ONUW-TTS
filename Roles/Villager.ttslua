@@ -1,0 +1,5 @@
+--Class for the villager role
+Villager = inherit(Role)
+Villager.name = "Villager"
+Villager.team = "Village"
+Villager.description = "The Villager has no special abilities, but he is definitely not a werewolf."
