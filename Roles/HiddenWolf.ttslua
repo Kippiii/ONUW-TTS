@@ -1,0 +1,6 @@
+--Werewolf given by Alpha Wolf
+HiddenWolf = inherit(Role)
+HiddenWolf.name = "Werewolf"
+HiddenWolf.team = "Werewolves"
+HiddenWolf.werewolf = true
+HiddenWolf.hidden = true;

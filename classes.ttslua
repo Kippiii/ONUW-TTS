@@ -151,14 +151,6 @@ function Role.voteAbility(this)
 
 end
 
-
---Werewolf given by Alpha Wolf
-HiddenWolf = inherit(Role)
-HiddenWolf.name = "Werewolf"
-HiddenWolf.team = "Werewolves"
-HiddenWolf.werewolf = true
-HiddenWolf.hidden = true;
-
 --Class for mystic wolf role
 MysticWolf = inherit(Role)
 MysticWolf.name = "Mystic Wolf"
