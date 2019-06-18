@@ -152,40 +152,6 @@ function Role.voteAbility(this)
 end
 
 
---Class for the robber role
-Robber = inherit(Role)
-Robber.name = "Robber"
-Robber.team = "Village"
-Robber.description = "At night, the Robber may choose to rob a card from another player, giving that player their Robber card. The Robber views his new card. The player who receives the Robber card is on the village team. The Robber is on the team of the card he takes, however, he does not do the action of his new role at night."
-Robber.earlyDoppel = true
-Robber.robbed = ""
-function Robber.startNightAbility(this)
-    self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", this.color)
-    self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Choose another player to steal the role of:")
-end
-function Robber.nightClick(this, value)
-    self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-    self.UI.setAttribute(this.color .. "PlayerShow", "visibility", this.color)
-    self.UI.setValue(this.color .. "PlayerShowInstructions", "You stole " .. value .. "'s role, and here is your new role:")
-    self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.players[value].role.name .. " Card")
-
-    this.robbed = value
-
-    Game.players[this.color].revealRole(this.color, Game.players[value].role)
-    Game.players[value].revealRole(this.color, Game.players[this.color].role)
-end
-function Robber.endNight(this)
-    self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", " ")
-    self.UI.setAttribute(this.color .. "PlayerShow", "visibility", " ")
-
-    if this.robbed ~= "" and not this.protected then
-        local temp = table.clone(Game.players[this.color].endRole)
-        Game.players[this.color].endRole = table.clone(Game.players[this.robbed].endRole)
-        Game.players[this.robbed].endRole = temp
-    end
-end
-
-
 --Class for the witch role
 Witch = inherit(Role)
 Witch.name  = "Witch"
