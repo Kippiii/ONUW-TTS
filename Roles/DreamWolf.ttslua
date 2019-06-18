@@ -1,0 +1,6 @@
+--Class for the dream wolf class
+DreamWolf = inherit(Role)
+DreamWolf.name = "Dream Wolf"
+DreamWolf.team = "Werewolves"
+DreamWolf.werewolf = true
+DreamWolf.description = "The dream wolf is a werewolf that does not get to know the identity of the other werewolves."
