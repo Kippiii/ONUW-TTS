@@ -1,0 +1,9 @@
+--Class for the insomniac role
+Insomniac = inherit(Role)
+Insomniac.name = "Insomniac"
+Insomniac.team = "Village"
+Insomniac.description = "The Insomniac wakes up and looks at her card (to see if it has changed)."
+function Insomniac.endNight(this)
+	if this.protected then return end
+    Game.players[this.color]:revealRole(this.color, Game.players[this.color].endRole)
+end
