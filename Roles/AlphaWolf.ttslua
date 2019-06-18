@@ -1,0 +1,122 @@
+--Class for alpha wolf role
+AlphaWolf = inherit(Role)
+AlphaWolf.name = "Alpha Wolf"
+AlphaWolf.team = "Werewolves"
+AlphaWolf.werewolf = true
+AlphaWolf.hidden = false;
+AlphaWolf.description = "This role causes an additional center card to be added that is always a normal werewolf. The Alpha Wolf knows the other werewolves, and it wakes up afterwards and excahnges the center werewolf card with another player's card."
+AlphaWolf.earlyDoppel = true
+AlphaWolf.prenight = true
+AlphaWolf.prenightTime = 15
+AlphaWolf.sawMiddle = false
+AlphaWolf.selection = ""
+AlphaWolf.werewolves = {}
+function AlphaWolf.beginPrenight(this)
+	--Gets all werewolves
+    for color in pairs(Game.players) do
+        if Game.players[color].role.werewolf and not Game.players[color].role.hidden then
+            table.insert(this.werewolves, Game.players[color])
+            if(color ~= this.color) then
+				if Game.players[color].role.name == "Dream Wolf" then
+					Game.players[color]:revealRole(this.color, DreamWolf:new())
+				else
+					Game.players[color]:revealRole(this.color, Werewolf:new())
+				end
+            end
+        end
+    end
+
+    if #this.werewolves == 1 then
+        self.UI.setAttribute(this.color .. "CenterCards", "active", "true")
+        self.UI.setValue(this.color .. "CenterCardsInstructions", "You are the only Werewolf. Choose one of the center cards in order to view it.")
+    else
+        self.UI.setAttribute(this.color .. "PlayerList", "active", "true")
+        self.UI.setValue(this.color .. "PlayerListInstructions", "Here is a list of the Werewolves in the game. Protect each other at all costs.")
+		self.UI.setValue(this.color .. "PlayerListExtraText", "Make another player a werewolf")
+		self.UI.setAttribute(this.color .. "PlayerListExtra", "onClick", "playerNightClick(Switch)")
+		self.UI.setAttribute(this.color .. "PlayerListExtra", "active", "true")
+        for i, player in ipairs(this.werewolves) do
+            local attributes = {
+                color=player.color,
+                visibility=this.color
+            }
+            self.UI.setAttributes(this.color .. "PlayerList" .. i, attributes)
+            self.UI.setValue(this.color .. "PlayerList" .. i .. "Text", player.player.steam_name)
+        end
+    end
+
+    self.UI.setAttribute(this.color .. "PlayerShowButton", "active", "true")
+end
+function AlphaWolf.nightClick(this, value)
+	if value == "Switch" or value == "continue" then
+		if this.sawMiddle then
+			self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
+		else
+			self.UI.setAttribute(this.color .. "PlayerList", "active", "false")
+		end
+		self.UI.setAttribute(this.color .. "PlayerSelector", "active", "true")
+        self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Please choose another player for you to turn into a werewolf:")
+	elseif #(this.werewolves) == 1 and not this.sawMiddle then
+		value = tonumber(value)
+		self.UI.setAttribute(this.color .. "CenterCards", "active", "false")
+		self.UI.setAttribute(this.color .. "PlayerShow", "active", "true")
+		self.UI.setValue(this.color .. "PlayerShowInstructions", "Here is the center role that you just viewed:")
+		self.UI.setAttribute(this.color .. "PlayerShowButton", "active", "true")
+        self.UI.setValue(this.color .. "PlayerShowButtonText", "Make another player a werewolf:")
+		self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.centerRoles[value].name .. " Card")
+		revealCenterCard(this.color, value)
+		this.sawMiddle = true
+	else
+		if this.selection == "" then
+			self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "Bold")
+			this.selection = value
+		elseif this.selection == value then
+			self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "None")
+			this.selection = ""
+		else
+			self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "Bold")
+			self.UI.setAttribute(this.color .. "PlayerSelector" .. this.selection, "fontStyle", "None")
+			this.selection = value
+		end
+	end
+end
+function AlphaWolf.endPrenight(this)
+	self.UI.setAttribute(this.color .. "PlayerList", "active", "false")
+	self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
+	self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+    self.UI.setAttribute(this.color .. "PlayerListExtra", "active", "false")
+
+    if this.selection == "" then
+        local tempPlayers = {}
+        for color, player in pairs(Game.players) do
+            if color ~= this.color and (not player.role.werewolf or not player.protected) then
+                table.insert(tempPlayers, color)
+            end
+        end
+        local r = math.random(arrLength(tempPlayers))
+        this.selection = tempPlayers[r]
+
+        broadcastToColor("You failed to select a player to give the center card, so " .. this.selection .. " was randomly selected!", this.color, "Red")
+    end
+
+    Game.players[this.selection]:revealRole(this.color, HiddenWolf:new())
+	local temp = table.clone(Game.players[this.selection].endRole)
+	Game.players[this.selection].endRole = table.clone(Game.centerRoles[4])
+	Game.centerRoles[4] = temp
+end
+function AlphaWolf.startNightAbility(this)
+	self.UI.setAttribute(this.color .. "PlayerList", "active", "true")
+	self.UI.setAttribute(this.color .. "PlayerListExtras", "active", "true")
+	self.UI.setValue(this.color .. "PlayerListInstructions", "Here is a list of the Werewolves in the game. Protect each other at all costs.")
+	for i, player in ipairs(this.werewolves) do
+		local attributes = {
+			color=player.color,
+			visibility=this.color
+		}
+		self.UI.setAttributes(this.color .. "PlayerList" .. i, attributes)
+		self.UI.setValue(this.color .. "PlayerList" .. i .. "Text", player.player.steam_name)
+    end
+end
+function AlphaWolf.endNight(this)
+    self.UI.setAttribute(this.color .. "PlayerList", "active", "false")
+end
