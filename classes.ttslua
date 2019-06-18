@@ -152,30 +152,6 @@ function Role.voteAbility(this)
 end
 
 
---Class for apprentice seer role
-ApprenticeSeer = inherit(Role)
-ApprenticeSeer.name = "Apprentice Seer"
-ApprenticeSeer.team = "Village"
-ApprenticeSeer.description = "At night, the apprentice seer may view one of the center roles."
-ApprenticeSeer.earlyDoppel = true
-ApprenticeSeer.centerViewed = 0
-function ApprenticeSeer.startNightAbility(this)
-	self.UI.setAttribute(this.color .. "CenterCards", "visibility", this.color)
-	self.UI.setValue(this.color .. "CenterCardsInstructions", "Please choose one card to view:")
-end
-function ApprenticeSeer.nightClick(this, value)
-	value = tonumber(value)
-	if self.UI.getAttribute(this.color .. "CenterCardsMiddleCard" .. value, "image") == "Back" and this.centerViewed < 1 then
-		self.UI.setAttribute(this.color .. "CenterCardsMiddleCard" .. value, "image", Game.centerRoles[value].name .. " Card")
-		revealCenterCard(this.color, value)
-		this.centerViewed = this.centerViewed + 1
-	end
-end
-function ApprenticeSeer.endNight(this)
-	self.UI.setAttribute(this.color .. "CenterCards", "visibility", " ")
-end
-
-
 --Class for paranormal investigator role
 PI = inherit(Role)
 PI.name = "Paranormal Investigator"
