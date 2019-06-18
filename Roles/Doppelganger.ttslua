@@ -1,0 +1,89 @@
+--Class for the dopleganger role
+Doppelganger = inherit(Role)
+Doppelganger.name = "Doppelganger"
+Doppelganger.team = "Village"
+Doppelganger.description = "The Doppelganger wakes up before everyone else and view another player's role. The Doppelganger is now that role. She is not only on the same team as the role in which she views, but she also gets to do the night action of the card in which she saw."
+Doppelganger.prenight = true
+Doppelganger.prenightTime = 20
+Doppelganger.doppelRole = nil
+Doppelganger.doppelState = "SELECTING" --SELECTING, VIEWING, ABILITY
+function Doppelganger.beginPrenight(this)
+    self.UI.setAttribute(this.color .. "PlayerSelector", "visibility", this.color)
+    self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Choose another player to copy the role of.")
+end
+function Doppelganger.nightClick(this, value)
+    if value == this.color then return end
+    if this.doppelState == "SELECTING" then
+        self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+        this.doppelRole = Game.players[value].role:class():new()
+        this.doppelRole.color = this.color
+        this.werewolf = this.doppelRole.werewolf
+        this.team = this.doppelRole.team
+        this.mason = this.doppelRole.mason
+        if this.team == "Tanner" then
+            this.team = "doppleTanner"
+        end
+        Game.players[this.color].endRole = table.clone(this)
+
+        self.UI.setAttribute(this.color .. "PlayerShow", "active", 'true')
+        local buttonAttributes = {}
+        if this.doppelRole.earlyDoppel then
+            buttonAttributes = {
+                color="Green",
+                onValueChanged="playerNightClick('Start')",
+                text="Do Ability",
+				visibility=this.color
+            }
+        else
+            buttonAttributes = {
+                color="Grey",
+                onValueChanged=" ",
+                text="Do Ability",
+				visibility=this.color
+            }
+        end
+        self.UI.setAttributes(this.color .. "PlayerShowButton", buttonAttributes)
+        self.UI.setAttribute(this.color .. "PlayerShowCard", "image", this.doppelRole.name .. " Card")
+        self.UI.setValue(this.color .. "PlayerShowInstructions", this.doppelRole.description)
+        this.doppelState = "VIEWING"
+    elseif this.doppelState == "VIEWING" then
+        self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
+        if this.doppelRole.prenight then
+            this.doppelRole:beginPrenight()
+        else
+            this.doppelRole:startNightAbility()
+        end
+        this.doppelState = "ABILITY"
+    elseif this.doppelState == "ABILITY" then
+        this.doppelRole:nightClick(value)
+    end
+end
+function Doppelganger.endPrenight(this)
+    if this.doppelState == "SELECTING" then
+        self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+    elseif this.doppelState == "VIEWING" then
+        self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
+    elseif this.doppelState == "ABILITY" then
+        if this.doppelRole.prenight then
+            this.doppelRole:endPrenight()
+        else
+            this.doppelRole:endNight()
+        end
+    end
+end
+function Doppelganger.startNightAbility(this)
+    if this.doppelRole ~= nil and (not this.doppelRole.earlyDoppel) then
+        this.doppelRole:startNightAbility()
+        this.doppelState = "ABILITY"
+    end
+end
+function Doppelganger.endNight(this)
+    if this.doppelRole ~= nil and (not this.doppelRole.earlyDoppel) then
+        this.doppelRole:endNight()
+    end
+end
+function Doppelganger.voteAbility(this)
+    if this.doppelRole ~= nil then
+        this.doppelRole:voteAbility()
+    end
+end

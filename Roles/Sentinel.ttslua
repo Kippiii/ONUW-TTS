@@ -1,0 +1,46 @@
+--Class for the sentinel role
+Sentinel = inherit(Role)
+Sentinel.name = "Sentinel"
+Sentinel.team = "Village"
+Sentinel.description = "Choose one other player to have their card be unable to be looked at or changed."
+Sentinel.earlyDoppel = true
+Sentinel.prenight = true
+Sentinel.prenightTime = 10
+Sentinel.protectee = ""
+function Sentinel.beginPrenight(this)
+	self.UI.setAttribute(this.color .. "PlayerSelector", "active", 'true')
+	self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Choose another player to protect their role from being changed or viewed.")
+end
+function Sentinel.nightClick(this, value)
+	if this.protectee == "" then
+		self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "Bold")
+		this.protectee = value
+	elseif value ~= this.protectee then
+		self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "Bold")
+		self.UI.setAttribute(this.color .. "PlayerSelector" .. this.protectee, "fontStyle", "None")
+		this.protectee = value
+	else
+		self.UI.setAttribute(this.color .. "PlayerSelector" .. value, "fontStyle", "None")
+		this.protectee = ""
+	end
+end
+function Sentinel.endPrenight(this)
+	self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+	if this.protectee == "" then return end
+
+	--Removes ability to interact with sentinel
+	for color, player in pairs(Game.players) do
+		if color ~= this.protectee or color ~= this.color then
+			self.UI.setAttribute(color .. "PlayerSelector" .. this.protectee .. "Sentinel", "visibility", color)
+			self.UI.setAttribute(color .. "PlayerSelector" .. this.protectee .. "Panel", "onClick", "")
+		end
+	end
+
+	--Adds sentinel token to card
+	for color, player in pairs(Game.players) do
+		Game.players[this.protectee].cardUI.UI.setAttribute(color .. "Sentinel", "visibility", color)
+	end
+
+	--Gives person protected status
+	Game.players[this.protectee].protected = true
+end
