@@ -1,0 +1,104 @@
+--Class for mystic wolf role
+MysticWolf = inherit(Role)
+MysticWolf.name = "Mystic Wolf"
+MysticWolf.team = "Werewolves"
+MysticWolf.werewolf = true
+MysticWolf.hidden = false;
+MysticWolf.description = "The Mystic Wolf wakes with the other Werewolves. Afterwards, the Mystic Wolf may look at one other player's card."
+MysticWolf.earlyDoppel = true
+MysticWolf.middle = -1
+MysticWolf.wolfState = "WOLF" --WOLF, MYSTIC
+MysticWolf.selection = ""
+function MysticWolf.startNightAbility(this)
+    --Gets all werewolves
+    local werewolves = {}
+    for color in pairs(Game.players) do
+        if Game.players[color].role.werewolf and not Game.players[color].role.hidden then
+            table.insert(werewolves, Game.players[color])
+            if(color ~= this.color) then
+				if Game.players[color].role.name == "Dream Wolf" then
+					Game.players[color]:revealRole(this.color, DreamWolf:new())
+				else
+					Game.players[color]:revealRole(this.color, Werewolf:new())
+				end
+            end
+        end
+    end
+
+    if #werewolves == 1 then
+        self.UI.setAttribute(this.color .. "CenterCards", "active", "true")
+        self.UI.setValue(this.color .. "CenterCardsInstructions", "You are the only Werewolf. Choose one of the center cards in order to view it.")
+    else
+        self.UI.setAttribute(this.color .. "PlayerList", "active", "true")
+        self.UI.setValue(this.color .. "PlayerListInstructions", "Here is a list of the Werewolves in the game. Protect each other at all costs.")
+		self.UI.setValue(this.color .. "PlayerListExtraText", "Look at another player's card:")
+		self.UI.setAttribute(this.color .. "PlayerListExtra", "onClick", "playerNightClick(Switch)")
+		self.UI.setAttribute(this.color .. "PlayerListExtra", "active", "true")
+        for i, player in ipairs(werewolves) do
+            local attributes = {
+                color=player.color,
+                visibility=this.color
+            }
+            self.UI.setAttributes(this.color .. "PlayerList" .. i, attributes)
+            self.UI.setValue(this.color .. "PlayerList" .. i .. "Text", player.player.steam_name)
+        end
+    end
+	self.UI.setAttribute(this.color .. "PlayerShowButton", "active", "true")
+end
+function MysticWolf.nightClick(this, value)
+	if this.wolfState == "WOLF" then
+		if value == "Switch" or value == "continue" then
+			if this.middle ~= -1 and this.selection == "" then
+                self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
+			elseif this.middle == -1
+				self.UI.setAttribute(this.color .. "PlayerList", "active", "false")
+			end
+
+			if this.selection ~= "" then
+                self.UI.setValue(this.color .. "PlayerShowInstructions", "You looked at " .. this.selection .. "'s role, and it is as follows:")
+                self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.players[this.selection].role.name .. " Card")
+				self.UI.setAttribute(this.color .. "PlayerShow", "active", "true")
+			else
+				self.UI.setAttribute(this.color .. "PlayerSelector", "active", "true")
+				self.UI.setValue(this.color .. "PlayerSelectorInstructions", "Please select a player to view the card of:")
+			end
+			this.wolfState = "MYSTIC"
+		else
+			value = tonumber(value)
+			self.UI.setAttribute(this.color .. "CenterCards", "active", "false")
+			self.UI.setAttribute(this.color .. "PlayerShow", "active", "true")
+			self.UI.setValue(this.color .. "PlayerShowInstructions", "Here is the center role that you just viewed:")
+			self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.centerRoles[value].name .. " Card")
+			revealCenterCard(this.color, value)
+			this.middle = value
+		end
+	else
+		if value == "Switch" or value == "continue" then
+			self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+            self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
+			if this.middle ~= -1 then
+				if this.selection ~= "" then
+					self.UI.setValue(this.color .. "PlayerShowInstructions", "Here is the center role that you just viewed:")
+					self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.centerRoles[this.middle].name .. " Card")
+				end
+				self.UI.setAttribute(this.color .. "PlayerShow", "active", "true")
+			else
+				self.UI.setAttribute(this.color .. "PlayerList", "active", "true")
+			end
+			this.wolfState = "WOLF"
+		else
+			self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+			self.UI.setAttribute(this.color .. "PlayerShow", "active", "true")
+			self.UI.setValue(this.color .. "PlayerShowInstructions", "You looked at " .. value .. "'s role, and it is as follows:")
+			self.UI.setAttribute(this.color .. "PlayerShowCard", "image", Game.players[value].role.name .. " Card")
+			Game.players[value]:revealRole(this.color, Game.players[value].role:class():new())
+            this.selection = value
+		end
+	end
+end
+function MysticWolf.endNight(this)
+	self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
+	self.UI.setAttribute(this.color .. "PlayerList", "active", "false")
+	self.UI.setAttribute(this.color .. "PlayerSelector", "active", "false")
+	self.UI.setAttribute(this.color .. "CenterCards", "active", "false")
+end
