@@ -152,45 +152,6 @@ function Role.voteAbility(this)
 end
 
 
---Class for the minion role
-Minion = inherit(Role)
-Minion.name = "Minion"
-Minion.team = "Werewolves"
-Minion.description = "The Minion is on the Werewolf team and gets to view the identities of the Werewolves. The Werewolves do not know the identities of the Minion. If the Minion is voted out at the end of the game, it does not count as a Werewolf getting voted out. If no players are Werewolves, the Minion wins as long as one other player (not the Minion) dies."
-function Minion.generateXml(this)
-    local xmlToAdd = ""
-    xmlToAdd = xmlToAdd .. "<Panel id='Minion' height='500' width='800' visibility=' '><Text color='Red' fontSize='50'>There are no Werewolves! You win if another player is voted out!</Text></Panel>"
-    return xmlToAdd
-end
-function Minion.startNightAbility(this)
-    local werewolves = {}
-    for color in pairs(Game.players) do
-        if Game.players[color].role.werewolf then
-            table.insert(werewolves, Game.players[color])
-            Game.players[color].revealRole(this.color, Werewolf())
-        end
-    end
-    if arrLength(werewolves) > 0 then
-        self.UI.setAttribute(this.color .. "PlayerList", "visibility", this.color)
-        self.UI.setValue(this.color .. "PlayerListInstructions", "Here are the werewolves. Keep them alive at all costs.")
-        for i, player in ipairs(werewolves) do
-            local attributes = {
-                color=player.color,
-                visibility=this.color
-            }
-            self.UI.setAttributes(this.color .. "PlayerList" .. i, attributes)
-            self.UI.setValue(this.color .. "PlayerList" .. i .. "Text", player.player.steam_name)
-        end
-    else
-        self.UI.setAttribute("Minion", "visibility", this.color)
-    end
-end
-function Minion.endNight(this)
-    self.UI.setAttribute("Minion", "visibility", removeFromVisibility("Minion", this.color))
-    self.UI.setAttribute(this.color .. "PlayerList", "visibility", " ")
-end
-
-
 --Class for the mason role
 Mason = inherit(Role)
 Mason.name = "Mason"
