@@ -32,7 +32,7 @@ function generateRoleList()
 	table.insert(possibleRoles, DreamWolf:new())
 	table.insert(possibleRoles, BodyGuard:new())
 
-    local roleSelectorString = "<GridLayout id='roleSelectorLayout' width='800' height='" .. (math.ceil(arrLength(possibleRoles) / 4) * 200) .. "' cellSize='200 200'>"
+    local roleSelectorString = "<GridLayout id='roleSelectorLayout' width='800' height='" .. (math.ceil(#possibleRoles / 4) * 200) .. "' cellSize='200 200'>"
     for index, role in ipairs(possibleRoles) do
         roleSelectorString = roleSelectorString .. "<Panel><Image rectAlignment='MiddleCenter' id='" .. role.name .. index .. "' class='role' image='" .. role.name .. "' color='#808080' onclick='roleSelect(" .. index .. ")' /></Panel>"
     end

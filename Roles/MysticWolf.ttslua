@@ -50,7 +50,7 @@ function MysticWolf.nightClick(this, value)
 		if value == "Switch" or value == "continue" then
 			if this.middle ~= -1 and this.selection == "" then
                 self.UI.setAttribute(this.color .. "PlayerShow", "active", "false")
-			elseif this.middle == -1
+			elseif this.middle == -1 then
 				self.UI.setAttribute(this.color .. "PlayerList", "active", "false")
 			end
 

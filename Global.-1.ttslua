@@ -1,12 +1,12 @@
 #include /ONUW/global.ttslua
 
+#include ONUW/OOP.ttslua
+
 #include /ONUW/MyPlayer.ttslua
 
 #include /ONUW/roles.ttslua
 
 #include /ONUW/main.ttslua
-
-#include /ONUW/functions.ttslua
 
 #include /ONUW/utilities.ttslua
 

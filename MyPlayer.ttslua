@@ -80,7 +80,7 @@ function MyPlayer.generateXml(this)
         "<Row id='" .. this.color .."CenterCardsAW' preferredHeight='300' active='false'><Cell columnSpan='3'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard4' class='CenterCardsMiddleCard4' /></Panel></Cell></Row>" ..
         "<Row preferredHeight='400'>"
             for i= 1, 3 do
-                "<Cell height='400' width='300'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard" .. i .. "' image='Back' onClick='playerNightClick(" .. i .. ")' /></Panel></Cell>"
+                xmlToAdd = xmlToAdd .. "<Cell height='400' width='300'><Panel><Image id='" .. this.color .. "CenterCardsMiddleCard" .. i .. "' image='Back' onClick='playerNightClick(" .. i .. ")' /></Panel></Cell>"
             end
         xmlToAdd = xmlToAdd .. "</Row>" ..
     "</TableLayout>"
