@@ -120,33 +120,3 @@ function MyPlayer.toggleReady(this, status)
     self.UI.setAttribute("ready" .. this.color, "color", colorButton)
     this.cardUI.UI.setAttribute(this.color .. "ReadyImage", "image", colorButton .. " Light")
 end
-
-
---Class for all roles in the game
-Role = inherit(nil)
-Role.name = ""
-Role.team = ""
-Role.werewolf = false
-Role.tanner = false
-Role.mason = false
-Role.description = ""
-Role.color = ""
-Role.earlyDoppel = false
-Role.prenight = false
-Role.prenightTime = -1
-Role.selected = false
-function Role.generateXml(this)
-    return ""
-end
-function Role.startNightAbility(this)
-
-end
-function Role.nightClick(this, value)
-
-end
-function Role.endNight(this)
-
-end
-function Role.voteAbility(this)
-
-end

@@ -1,9 +1,8 @@
-debug = true
-debugReady = true
-
 #include /ONUW/global.ttslua
 
-#include /ONUW/classes.ttslua
+#include /ONUW/MyPlayer.ttslua
+
+#include /ONUW/roles.ttslua
 
 #include /ONUW/main.ttslua
 
@@ -14,5 +13,3 @@ debugReady = true
 #include /ONUW/events.ttslua
 
 #include /ONUW/debug.ttslua
-
-#include /ONUW/roles.ttslua
