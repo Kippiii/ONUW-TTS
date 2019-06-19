@@ -1,3 +1,174 @@
+--Toggles the role selector window
+function roleSelectToggle(player)
+    local color = player.color
+    local player = players[color]
+    if player ~= nil then
+        player.roleSelector = not player.roleSelector
+        local visibility = ""
+        for color1, player1 in pairs(players) do
+            if player1.roleSelector then
+                if visibility == "" then
+                    visibility = visibility .. color1
+                else
+                    visibility = visibility .. "|" .. color1
+                end
+            end
+        end
+        if visibility == "" then
+            visibility = " "
+        end
+        self.UI.setAttribute("roleSelector", "visibility", visibility)
+    end
+end
+
+function claimToggle(player)
+    local color = player.color
+    local player = players[color]
+    if player ~= nil then
+        player.claimSelector = not player.claimSelector
+        local visibility = ""
+        for color1, player1 in pairs(players) do
+            if player1.claimSelector then
+                if visibility == "" then
+                    visibility = visibility .. color1
+                else
+                    visibility = visibility .. "|" .. color1
+                end
+            end
+        end
+        if visibility == "" then
+            visibility = " "
+        end
+        self.UI.setAttribute("claimSelector", "visibility", visibility)
+    end
+end
+
+--Toggles individual roles
+function roleSelect(player, index)
+    if (not player.promoted and not player.host) or Game.state ~= "JOIN" then
+        return
+    end
+    index = tonumber(index)
+    local color = ""
+    if possibleRoles[index].selected then
+        color = "#808080"
+    else
+        color = "#FFFFFF"
+    end
+    self.UI.setAttribute(possibleRoles[index].name .. index, "color", color)
+    possibleRoles[index].selected = not possibleRoles[index].selected
+end
+
+--Someone choosing their cliam
+function claimSelect(player, index)
+    index = tonumber(index)
+    player = Game.players[player.color]
+    roleName = Game.roles[index].name
+    if player.claim == roleName then
+        player.cardUI.UI.setAttribute(player.color .. "Claim", "active", "false")
+        player.cardUI.UI.setAttribute(player.color .. "ClaimMini", "active", "false")
+        player.claim = ""
+    else
+        player.cardUI.UI.setAttribute(player.color .. "Claim", "active", "true")
+        player.cardUI.UI.setAttribute(player.color .. "ClaimMini", "active", "true")
+        player.cardUI.UI.setAttribute(player.color .. "ClaimImage", "image", roleName)
+        player.cardUI.UI.setAttribute(player.color .. "ClaimMiniImage", "image", roleName)
+        player.claim = roleName
+    end
+end
+
+function spawnCenterCard(position, rotation)
+    local object = spawnObject({type="Checker_white", position=position, rotation=rotation, sound=false, callback_function=setupCard})
+    function setupCard()
+        object.setInvisibleTo(Player.getColors())
+
+        xmlToAdd = ""
+        for _, color in pairs(Player.getColors()) do
+            xmlToAdd = xmlToAdd .. "<Panel width='300' height='400' position='0 0 -50' visibility='" .. color .. "' id='" .. color .. "'><Image id='" .. color .. "Image' image='Back' /></Panel>"
+        end
+
+        object.UI.setXml(xmlToAdd)
+        object.setLock(true)
+        table.insert(Game.centerRoleCards, object)
+    end
+end
+
+function playerNightClick(player, value)
+    Game.players[player.color].role:nightClick(value)
+end
+
+function revealCenterCard(color, roleNum)
+    local cardUI = Game.centerRoleCards[roleNum]
+    cardUI.UI.setAttribute(color .. "Image", "image", Game.centerRoles[roleNum].name .. " Card")
+end
+
+function nightBlind()
+    for color in pairs(Game.players) do
+        Player[color].blindfolded = true
+    end
+    function recursiveBlind()
+        if Game.state ~= "NIGHT" and Game.state ~= "PRENIGHT" then return end
+        for color, player in pairs(Game.players) do
+            if player ~= nil and not Player[color].blindfolded then
+                Player[color].blindfolded = true
+                broadcastToAll(player.color .. " has been caught cheating by removing their blindfold! Ban them!", "Red")
+            end
+        end
+        Wait.time(recursiveBlind, 1)
+    end
+    recursiveBlind()
+end
+
+function timer(id, endFunction)
+    function repetition()
+        local time = tonumber(self.UI.getValue(id))
+        if time == nil or Game.paused then
+            Wait.time(repetition, 1)
+        elseif time > 0 then
+            time = time - 1
+            self.UI.setValue(id, time)
+            Wait.time(repetition, 1)
+        else
+            endFunction()
+        end
+    end
+    Wait.time(repetition, 1)
+end
+
+function voteToggle(player)
+    local color = player.color
+    if self.UI.getAttribute(color .. "Voting", "active") == "false" then
+        self.UI.setAttribute(color .. "Voting", "active", 'true')
+    else
+        self.UI.setAttribute(color .. "Voting", "active", "false")
+    end
+end
+
+function vote(player, vote)
+    local color = player.color
+    local player = Game.players[color]
+    if player ~= nil then
+        if player.vote == vote then
+            player.vote = ""
+            player.cardUI.UI.setAttribute(color .. "ReadyImage", "image", "Red Light")
+            self.UI.setAttribute(color .. "Vote" .. vote, "fontStyle", "None")
+        else
+            self.UI.setAttribute(color .. "Vote" .. player.vote, "fontStyle", "None")
+            player.vote = vote
+            player.cardUI.UI.setAttribute(color .. "ReadyImage", "image", "Green Light")
+            self.UI.setAttribute(color .. "Vote" .. vote, "fontStyle", "Bold")
+        end
+
+        --Checks if everyone has voted
+        for color, player in pairs(Game.players) do
+            if player.vote == "" then
+                return
+            end
+        end
+        callVote()
+    end
+end
+
 function canStart()
     local roles = 0
     for _, role in ipairs(possibleRoles) do
@@ -50,15 +221,6 @@ function replaceInUI(original, replacement)
     if begin ~= nil then
         self.UI.setXml(ui:sub(1, begin - 1) .. replacement .. ui:sub(terminate + 1))
     end
-end
-
---TODO Delete this stupid function
-function arrLength(arr)
-    local length = 0
-    for i, v in ipairs(arr) do
-        length = length + 1
-    end
-    return length
 end
 
 function getPlayerCount()
