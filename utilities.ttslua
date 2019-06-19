@@ -1,33 +1,28 @@
 --Toggles the role selector window
+local roleSelectorString = ""
 function roleSelectToggle(player)
     local color = player.color
-    local player = players[color]
-    if player ~= nil then
-        player.roleSelector = not player.roleSelector
-        local visibility = ""
-        for color1, player1 in pairs(players) do
-            if player1.roleSelector then
-                if visibility == "" then
-                    visibility = visibility .. color1
-                else
-                    visibility = visibility .. "|" .. color1
-                end
-            end
-        end
-        if visibility == "" then
-            visibility = " "
-        end
-        self.UI.setAttribute("roleSelector", "visibility", visibility)
+    if color == "Grey" or color == "Black" then return end
+    local inVis = roleSelectorString:find(color) ~= nil
+    if inVis then
+        roleSelectorString = roleSelectorString:gsub(color .. '|', '')
+    else
+        roleSelectorString = roleSelectorString .. color .. '|'
     end
+    local visibility = roleSelectorString
+    if visibility == "" then
+        visibility = " "
+    end
+    self.UI.setAttribute("roleSelector", "visibility", visibility)
 end
 
 function claimToggle(player)
     local color = player.color
-    local player = players[color]
+    local player = Game.players[color]
     if player ~= nil then
         player.claimSelector = not player.claimSelector
         local visibility = ""
-        for color1, player1 in pairs(players) do
+        for color1, player1 in pairs(Game.players) do
             if player1.claimSelector then
                 if visibility == "" then
                     visibility = visibility .. color1
