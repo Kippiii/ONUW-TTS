@@ -175,7 +175,7 @@ function canStart()
             roles = roles + 1
         end
     end
-    if getPlayerCount() >= 3 then
+    if getPlayerCount() < 3 then
         return "Could not start game. You need at least 3 players, and you currently have " .. getPlayerCount() .."!"
     end
     if roles ~= getPlayerCount() + 3 then
