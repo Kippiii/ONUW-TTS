@@ -3,17 +3,21 @@ local roleSelectorString = ""
 function roleSelectToggle(player)
     local color = player.color
     if color == "Grey" or color == "Black" then return end
+    local attributes = {
+         "active"="true",
+         "visibility"=roleSelectorString
+    }
     local inVis = roleSelectorString:find(color) ~= nil
     if inVis then
         roleSelectorString = roleSelectorString:gsub(color .. '|', '')
     else
         roleSelectorString = roleSelectorString .. color .. '|'
     end
-    local visibility = roleSelectorString
-    if visibility == "" then
-        visibility = " "
-    end
-    self.UI.setAttribute("roleSelector", "visibility", visibility)
+    if roleSelectorString == "" then
+        attributes["active"] = "false"
+   end
+   attributes["visibility"] = roleSelectorString
+   self.UI.setAttributes("roleSelector", attributes)
 end
 
 function claimToggle(player)
