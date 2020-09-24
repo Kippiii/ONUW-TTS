@@ -45,7 +45,7 @@ function VillageIdiot.endNight(this)
 		end
 	end
 
-	if this.direction == "Left" then
+	if this.direction == "Right" then
 		local firstRole = Game.players[colorOrder[1]].endRole
 		for i in ipairs(colorOrder) do
 			if i ~= #colorOrder then
